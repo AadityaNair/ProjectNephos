@@ -17,10 +17,10 @@ setup(
         install_requires=[
             'google-api-python-client',
         ],
-        # tests_require=[
-        #     'pytest',
-        #     'mock',
-        # ],
+        tests_require=[
+            'pytest',
+            'mock',
+        ],
         test_suite=None,  # TODO: Update later.
         entry_points={
             'console_scripts': ['nephos=ProjectNephos.nephos:main'],
