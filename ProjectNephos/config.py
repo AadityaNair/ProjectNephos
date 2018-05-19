@@ -1,10 +1,10 @@
+import logging
 import os
 from configparser import ConfigParser
 from io import StringIO
-import logging
+from logging import getLogger
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 # These values will be applied when there is no config file specified.
 default_values = {
