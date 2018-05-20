@@ -25,6 +25,10 @@ config = ConfigParser()
 
 
 def parse_config() -> ConfigParser:
+    """
+    Read the config file into an object. It also creates a default of one doesn't already exist
+    :return Config object
+    """
     full_path = USER_CONFIG_LOC + USER_CONFIG_FNAME
 
     if not os.path.isfile(full_path):
