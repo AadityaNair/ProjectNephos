@@ -11,14 +11,12 @@ def main():
     config = parse_config()
 
     # TODO: More information can be added to the definitions below
-    parser = argparse.ArgumentParser(prog='nephos')
+    parser = argparse.ArgumentParser(prog="nephos")
     parser.add_argument(
-            '-v', '--verbose',
-            action='store_true',
-            help='Log a lot more things.',
+        "-v", "--verbose", action="store_true", help="Log a lot more things."
     )
 
-    subparser = parser.add_subparsers(dest='subc')
+    subparser = parser.add_subparsers(dest="subc")
     for handler in ActionHandlers:
         handler._init_args(subparser)
 
@@ -33,5 +31,5 @@ def main():
     h.run(args, config)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

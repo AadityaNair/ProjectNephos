@@ -20,9 +20,9 @@ logger = getLogger(__name__)
 
 
 class DriveStorage(object):
-    SCOPES = 'https://www.googleapis.com/auth/drive'
-    CLIENT_SECRET_FILE = 'client_secret.json'
-    APPLICATION_NAME = 'Project Nephos'
+    SCOPES = "https://www.googleapis.com/auth/drive"
+    CLIENT_SECRET_FILE = "client_secret.json"
+    APPLICATION_NAME = "Project Nephos"
 
     @staticmethod
     def _run_credentials_flow() -> OAuth2Credentials:
@@ -38,35 +38,47 @@ class DriveStorage(object):
         """
         try:
             flow = client.flow_from_clientsecrets(
-                    filename=DriveStorage.CLIENT_SECRET_FILE,  # TODO: Convert to a file from config
-                    scope=DriveStorage.SCOPES,
-                    redirect_uri='urn:ietf:wg:oauth:2.0:oob',  # Make sure that opening GUI is not attempted.
+                filename=DriveStorage.CLIENT_SECRET_FILE,  # TODO: Convert to a file from config
+                scope=DriveStorage.SCOPES,
+                redirect_uri="urn:ietf:wg:oauth:2.0:oob",  # Make sure that opening GUI is not attempted.
             )
         except InvalidClientSecretsError:
-            logger.critical('An invalid client secret file was supplied. Check'
-                            'the file contents at {} and try again'.format(DriveStorage.CLIENT_SECRET_FILE))
-            raise OAuthFailure('Invalid Client Secret file provided')
+            logger.critical(
+                "An invalid client secret file was supplied. Check"
+                "the file contents at {} and try again".format(
+                    DriveStorage.CLIENT_SECRET_FILE
+                )
+            )
+            raise OAuthFailure("Invalid Client Secret file provided")
         except JSONDecodeError:
-            logger.critical("The client secret file is not a valid JSON file. Check it and try again.")
-            raise OAuthFailure('Non JSON client secret file was provided.')
+            logger.critical(
+                "The client secret file is not a valid JSON file. Check it and try again."
+            )
+            raise OAuthFailure("Non JSON client secret file was provided.")
 
         flow.user_agent = DriveStorage.APPLICATION_NAME
 
-        url = flow.step1_get_authorize_url()  # Returns the URL that the user is supposed to visit to authorize.
-        print('Please visit the following URL to authorize Project Nephos: ' + url)
-        code = input('Please enter the code you found there: ')
+        url = (
+            flow.step1_get_authorize_url()
+        )  # Returns the URL that the user is supposed to visit to authorize.
+        print("Please visit the following URL to authorize Project Nephos: " + url)
+        code = input("Please enter the code you found there: ")
 
         try:
             credentials = flow.step2_exchange(code)
         except FlowExchangeError:
-            logger.critical('Authentication flow has failed due to bad code entered. This can happen because some '
-                            'entries in the client secret is corrupted. Please check the file and try again.')
-            raise OAuthFailure('Invalid Code')
-        logger.debug('Auth flow has been completed successfully')
+            logger.critical(
+                "Authentication flow has failed due to bad code entered. This can happen because some "
+                "entries in the client secret is corrupted. Please check the file and try again."
+            )
+            raise OAuthFailure("Invalid Code")
+        logger.debug("Auth flow has been completed successfully")
 
         return credentials
 
-    def _get_credentials(self, credential_path: str = '/home/Aaditya/.credentials/access.json', ) -> OAuth2Credentials:
+    def _get_credentials(
+        self, credential_path: str = "/home/Aaditya/.credentials/access.json"
+    ) -> OAuth2Credentials:
         """Gets valid user credentials from storage.
 
         If credentials do not exist, it runs the OAuth2 flow to get them.
@@ -81,24 +93,24 @@ class DriveStorage(object):
         credentials = store.get()
 
         if not credentials:
-            logger.debug('No credentials found on the location.')
+            logger.debug("No credentials found on the location.")
         elif credentials.invalid:
-            logger.warning('Credentials were found but are invalid.')
+            logger.warning("Credentials were found but are invalid.")
 
         if not credentials or credentials.invalid:
-            logger.debug('Running the authentication flow.')
+            logger.debug("Running the authentication flow.")
             credentials = self._run_credentials_flow()
             store.put(credentials)
         return credentials
 
-    def __init__(self, ):
+    def __init__(self,):
         """
         Driver code to interact with Google Drive.
         This will try to authorize with your google account before proceeding.
         """
         credentials = self._get_credentials()
         http = credentials.authorize(Http())
-        service = discovery.build('drive', 'v3', http=http)
+        service = discovery.build("drive", "v3", http=http)
 
         self.file_service = service.files()
         self.perm_service = service.permissions()
@@ -116,20 +128,17 @@ class DriveStorage(object):
         logger.debug("Trying to upload file: {}".format(filename))
 
         if not isfile(filename):
-            logger.critical('No such file exists. Check path and try again')
-            raise FileNotFound(filename + 'does not exist')
+            logger.critical("No such file exists. Check path and try again")
+            raise FileNotFound(filename + "does not exist")
 
         media = MediaFileUpload(
-                filename=filename,
-                mimetype=None,
-                chunksize=1024,
-                resumable=True,
+            filename=filename, mimetype=None, chunksize=1024, resumable=True
         )
-        file_metadata = {'name': filename}
+        file_metadata = {"name": filename}
 
         f = self.file_service.create(body=file_metadata, media_body=media).execute()
         logger.info("File successfully uploaded.")
-        logger.debug('File metadata: {}'.format(f))
+        logger.debug("File metadata: {}".format(f))
         return f
 
     def is_exists(self, fileid: str) -> bool:
@@ -158,13 +167,13 @@ class DriveStorage(object):
         Returns:
             The contents of the file as a binary string.
         """
-        logger.debug('Trying to read file id: {}'.format(fileid))
+        logger.debug("Trying to read file id: {}".format(fileid))
 
         if self.is_exists(fileid):
             return self.file_service.get_media(fileId=fileid).execute()
         else:
-            logger.critical('Given file not found.')
-            raise FileNotFound('{} not found on drive'.format(fileid))
+            logger.critical("Given file not found.")
+            raise FileNotFound("{} not found on drive".format(fileid))
 
     def search(self, name_subs: str) -> List[Tuple[str, str]]:
         """
@@ -180,18 +189,17 @@ class DriveStorage(object):
         query = "name contains '{}'".format(name_subs)
         logger.debug("Following is the search query: " + query)
 
-        response = self.file_service.list(q=query, pageSize=5,
-                                          includeTeamDriveItems=True,
-                                          supportsTeamDrives=True
-                                          ).execute()
+        response = self.file_service.list(
+            q=query, pageSize=5, includeTeamDriveItems=True, supportsTeamDrives=True
+        ).execute()
 
-        items = response.get('files', [])
+        items = response.get("files", [])
         if not items:
             logger.critical("No files were found matching the query.")
-            raise FileNotFound('Query returned empty')
+            raise FileNotFound("Query returned empty")
 
-        response = [(f['name'], f['id']) for f in items]
-        logger.debug('following information was returned.\n{}'.format(response))
+        response = [(f["name"], f["id"]) for f in items]
+        logger.debug("following information was returned.\n{}".format(response))
         return response
 
     def delete(self, fileid: str) -> None:
@@ -203,11 +211,11 @@ class DriveStorage(object):
             fileid of the object to be deleted.
         """
         if not self.is_exists(fileid):
-            logger.warning('The provided fileid ({}) never existed.'.format(fileid))
+            logger.warning("The provided fileid ({}) never existed.".format(fileid))
             return None
 
         self.file_service.delete(fileId=fileid).execute()
-        logger.debug('Fileid ({}) deleted.'.format(fileid))
+        logger.debug("Fileid ({}) deleted.".format(fileid))
 
     def add_permissions_user(self, fileid: str, email: str, role: str) -> dict:
         """
@@ -225,16 +233,17 @@ class DriveStorage(object):
         Returns:
             the metadata associated with the permission
         """
-        logger.debug("Following information to be updated\n"
-                     "fileid: {f}\nrole: {r}\n email: {e}\n".format(f=fileid, r=role, e=email)
-                     )
+        logger.debug(
+            "Following information to be updated\n"
+            "fileid: {f}\nrole: {r}\n email: {e}\n".format(f=fileid, r=role, e=email)
+        )
 
         if not self.is_exists(fileid):
             logger.critical("File not found")
-            raise FileNotFound('No file to add permission to')
+            raise FileNotFound("No file to add permission to")
 
-        permission = {'type': 'user', 'role': role, 'emailAddress': email}
+        permission = {"type": "user", "role": role, "emailAddress": email}
         mdata = self.perm_service.create(fileId=fileid, body=permission).execute()
-        logger.debug('The permission was created.\n{}'.format(mdata))
+        logger.debug("The permission was created.\n{}".format(mdata))
 
         return mdata

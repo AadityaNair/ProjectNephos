@@ -8,19 +8,15 @@ logger = getLogger(__name__)
 
 # These values will be applied when there is no config file specified.
 default_values = {
-
-    'google': {
-        'client_secret_location': '~/client_secret.json',
-        'auth_token_location': '~/.credentials/',
+    "google": {
+        "client_secret_location": "~/client_secret.json",
+        "auth_token_location": "~/.credentials/",
     },
-
-    'downloads': {
-        'local_save_location': '~/nephos/'
-    },
+    "downloads": {"local_save_location": "~/nephos/"},
 }
 
-USER_CONFIG_LOC = '/tmp/test/'  # TODO: Fill better info at the end
-USER_CONFIG_FNAME = 'config.ini'
+USER_CONFIG_LOC = "/tmp/test/"  # TODO: Fill better info at the end
+USER_CONFIG_FNAME = "config.ini"
 config = ConfigParser()
 
 
@@ -33,10 +29,14 @@ def parse_config() -> ConfigParser:
 
     if not os.path.isfile(full_path):
         config.read_dict(default_values)
-        logger.info("Config file does not exist. Creating a new one at {}".format(USER_CONFIG_LOC))
+        logger.info(
+            "Config file does not exist. Creating a new one at {}".format(
+                USER_CONFIG_LOC
+            )
+        )
 
         os.makedirs(USER_CONFIG_LOC, exist_ok=True)
-        with open(full_path, 'w') as f:
+        with open(full_path, "w") as f:
             config.write(f)
     else:
         config.read(full_path)
