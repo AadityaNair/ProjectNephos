@@ -1,8 +1,18 @@
 language: python
+
 python:
   - 3.6
+
 install:
   - pip install .
+  - pip install coveralls
 
 script:
   - pytest
+
+after_success:
+  - coveralls
+
+notifications:
+  - on_success: change
+  - on_failure: always
