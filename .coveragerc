@@ -2,6 +2,6 @@
 omit =
     */site-packages/*
     */.eggs/*
-    /home/travis/*
+    */distutils/*
     tests/*
 
