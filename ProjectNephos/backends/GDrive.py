@@ -11,6 +11,7 @@ from apiclient.errors import HttpError
 
 from httplib2 import Http
 from logging import getLogger
+from configparser import ConfigParser
 
 from oauth2client.clientsecrets import InvalidClientSecretsError
 
@@ -21,11 +22,10 @@ logger = getLogger(__name__)
 
 class DriveStorage(object):
     SCOPES = "https://www.googleapis.com/auth/drive"
-    CLIENT_SECRET_FILE = "client_secret.json"
     APPLICATION_NAME = "Project Nephos"
 
     @staticmethod
-    def _run_credentials_flow() -> OAuth2Credentials:
+    def _run_credentials_flow(client_secret_loc: str) -> OAuth2Credentials:
         """
         Get credentials via OAuth2.
         Run once during the first use of Nephos or when the stored
@@ -38,16 +38,14 @@ class DriveStorage(object):
         """
         try:
             flow = client.flow_from_clientsecrets(
-                filename=DriveStorage.CLIENT_SECRET_FILE,  # TODO: Convert to a file from config
+                filename=client_secret_loc,
                 scope=DriveStorage.SCOPES,
                 redirect_uri="urn:ietf:wg:oauth:2.0:oob",  # Make sure that opening GUI is not attempted.
             )
         except InvalidClientSecretsError:
             logger.critical(
                 "An invalid client secret file was supplied. Check"
-                "the file contents at {} and try again".format(
-                    DriveStorage.CLIENT_SECRET_FILE
-                )
+                "the file contents at {} and try again".format(client_secret_loc)
             )
             raise OAuthFailure("Invalid Client Secret file provided")
         except JSONDecodeError:
@@ -77,7 +75,7 @@ class DriveStorage(object):
         return credentials
 
     def _get_credentials(
-        self, credential_path: str = "/home/Aaditya/.credentials/access.json"
+        self, credential_path: str, client_secret_loc: str
     ) -> OAuth2Credentials:
         """Gets valid user credentials from storage.
 
@@ -99,16 +97,19 @@ class DriveStorage(object):
 
         if not credentials or credentials.invalid:
             logger.debug("Running the authentication flow.")
-            credentials = self._run_credentials_flow()
+            credentials = self._run_credentials_flow(client_secret_loc)
             store.put(credentials)
         return credentials
 
-    def __init__(self,):
+    def __init__(self, config: ConfigParser):
         """
         Driver code to interact with Google Drive.
         This will try to authorize with your google account before proceeding.
         """
-        credentials = self._get_credentials()
+        credentials = self._get_credentials(
+            credential_path=config["google"]["auth_token_location"],
+            client_secret_loc=config["google"]["client_secret_location"],
+        )
         http = credentials.authorize(Http())
         service = discovery.build("drive", "v3", http=http)
 

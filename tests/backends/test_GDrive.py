@@ -24,8 +24,15 @@ def test_default_object_creation(getc, Http, build):
     service.permissions.return_value = "random3"
     build.return_value = service
 
-    g = DriveStorage()
+    config = {
+        "google": {
+            "auth_token_location": "random4",
+            "client_secret_location": "random5",
+        }
+    }
+    g = DriveStorage(config)
 
+    getc.assert_called_once_with(credential_path="random4", client_secret_loc="random5")
     creds.authorize.assert_called_once_with("random1")
     build.assert_called_with("drive", "v3", http=authorized_http)
     service.files.assert_called_once()
@@ -35,18 +42,18 @@ def test_default_object_creation(getc, Http, build):
     assert g.perm_service == "random3"
 
 
-@patch(MODULE_NAME + ".Storage")
 @patch(MODULE_NAME + ".discovery.build")
 @patch(MODULE_NAME + ".Http")
+@patch(MODULE_NAME + ".Storage")
 @patch(MODULE_NAME + ".DriveStorage._run_credentials_flow")
-def test_credentials_preexisting(runcf, Http, Build, Storage):
+def test_credentials_preexisting(runcf, Storage, *_):
     creds = MagicMock()
     creds.invalid = False
     store = MagicMock()
     store.get.return_value = creds
     Storage.return_value = store
 
-    DriveStorage()
+    DriveStorage(MagicMock())
 
     Storage.assert_called_once()
     store.get.assert_called_once()
@@ -73,7 +80,7 @@ def test_credentials_flow_success():
 @patch(MODULE_NAME + ".Http")
 @patch(MODULE_NAME + ".DriveStorage._get_credentials")
 @patch(MODULE_NAME + ".discovery.build")
-def default_object(build, *args):
+def default_object(build, *_):
     file_service = MagicMock()
     perm_service = MagicMock()
 
@@ -81,12 +88,12 @@ def default_object(build, *args):
     service.files.return_value = file_service
     service.permissions.return_value = perm_service
     build.return_value = service
-    g = DriveStorage()
+    g = DriveStorage(MagicMock())
     return g, file_service, perm_service
 
 
 def test_exists_yes(default_object):
-    g, file_service, perm_service = default_object
+    g, file_service, _ = default_object
 
     exc = MagicMock()
     file_service.get.return_value = exc
@@ -98,7 +105,7 @@ def test_exists_yes(default_object):
 
 
 def test_exists_no(default_object):
-    g, file_service, perm_service = default_object
+    g, file_service, _ = default_object
 
     exc = MagicMock()
     exc.execute.side_effect = HttpError("random2", b"random3")

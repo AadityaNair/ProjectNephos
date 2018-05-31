@@ -1,4 +1,3 @@
-import logging
 import os
 from configparser import ConfigParser
 from io import StringIO
@@ -9,8 +8,8 @@ logger = getLogger(__name__)
 # These values will be applied when there is no config file specified.
 default_values = {
     "google": {
-        "client_secret_location": "~/client_secret.json",
-        "auth_token_location": "~/.credentials/",
+        "client_secret_location": "./client_secret.json",
+        "auth_token_location": "~/.credentials/access.json",
     },
     "downloads": {"local_save_location": "~/nephos/"},
 }
