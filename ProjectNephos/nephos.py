@@ -3,17 +3,26 @@
 import argparse
 
 from ProjectNephos.config import parse_config
+from ProjectNephos.handlers.upload import UploadHandler
 
-ActionHandlers = []
+config = parse_config()
+ActionHandlers = [UploadHandler("upload", config)]
 
 
 def main():
-    config = parse_config()
 
     # TODO: More information can be added to the definitions below
     parser = argparse.ArgumentParser(prog="nephos")
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Log a lot more things."
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose logging. Beware, it prints a lot of things.",
+    )
+    parser.add_argument(
+        "--ignore_errors",
+        action="store_true",
+        help="Ignore errors encountered in some operations and continue",
     )
 
     subparser = parser.add_subparsers(dest="subc")
