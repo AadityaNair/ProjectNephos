@@ -42,6 +42,7 @@ def test_default_object_creation(getc, Http, build):
     assert g.perm_service == "random3"
 
 
+@patch(MODULE_NAME + ".expanduser")
 @patch(MODULE_NAME + ".discovery.build")
 @patch(MODULE_NAME + ".Http")
 @patch(MODULE_NAME + ".Storage")
@@ -77,6 +78,7 @@ def test_credentials_flow_success():
 
 
 @pytest.fixture
+@patch(MODULE_NAME + ".expanduser")
 @patch(MODULE_NAME + ".Http")
 @patch(MODULE_NAME + ".DriveStorage._get_credentials")
 @patch(MODULE_NAME + ".discovery.build")

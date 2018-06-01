@@ -37,7 +37,7 @@ def main():
 
     # This line basically selects the correct ActionHandler from the list and returns it.
     h = list(filter(lambda x: x.subcommand == args.subc, ActionHandlers))[0]
-    h.run(args, config)
+    h.run(args)
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ class UploadHandler(object):
     def run(self, args: Namespace):
         if not args.ignore_errors:
             bad_items = filter(lambda x: not path.isfile(x), args.files)
-            if len(bad_items) != 0:
+            if len(list(bad_items)) != 0:
                 logger.critical(
                     "Operation aborted because some files did not exist."
                     "To upload other files, pass the --ignore_errors option."

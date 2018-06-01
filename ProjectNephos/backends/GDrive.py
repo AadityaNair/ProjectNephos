@@ -1,6 +1,7 @@
 from json import JSONDecodeError
-from os.path import isfile
+from os.path import isfile, expanduser
 from typing import List, Tuple
+from mimetypes import guess_type
 
 from apiclient import discovery
 from oauth2client import client
@@ -107,8 +108,8 @@ class DriveStorage(object):
         This will try to authorize with your google account before proceeding.
         """
         credentials = self._get_credentials(
-            credential_path=config["google"]["auth_token_location"],
-            client_secret_loc=config["google"]["client_secret_location"],
+            credential_path=expanduser(config["google"]["auth_token_location"]),
+            client_secret_loc=expanduser(config["google"]["client_secret_location"]),
         )
         http = credentials.authorize(Http())
         service = discovery.build("drive", "v3", http=http)
@@ -133,9 +134,9 @@ class DriveStorage(object):
             raise FileNotFound(filename + "does not exist")
 
         media = MediaFileUpload(
-            filename=filename, mimetype=None, chunksize=1024, resumable=True
+            filename=filename, mimetype=guess_type(filename)[0], chunksize=1024
         )
-        file_metadata = {"name": filename}
+        file_metadata = {"name": filename.split("/")[-1]}  # Get the filename from path
 
         f = self.file_service.create(body=file_metadata, media_body=media).execute()
         logger.info("File successfully uploaded.")
