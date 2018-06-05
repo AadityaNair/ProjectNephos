@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 import argparse
+import logging
 
 from ProjectNephos.config import parse_config
 from ProjectNephos.handlers.upload import UploadHandler
+from ProjectNephos.handlers.search import SearchHandler
 
 config = parse_config()
-ActionHandlers = [UploadHandler("upload", config)]
+ActionHandlers = [UploadHandler("upload", config), SearchHandler("search", config)]
 
 
 def main():
@@ -30,6 +32,11 @@ def main():
         handler._init_args(subparser)
 
     args = parser.parse_args()
+
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig()
 
     if args.subc is None:
         parser.print_help()

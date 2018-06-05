@@ -159,6 +159,50 @@ class DriveStorage(object):
             return False
         return True
 
+    def search(
+        self, name_subs: str = None, tag_subs: List[str] = None, do_and: bool = False
+    ) -> List[Tuple[str, str]]:
+        """
+        Search for a file in the drive. Many filters are supported but we currently only
+        search for a substring on a filename and for tags. It returns the names as well as fileids for
+        all matching objects.
+
+        Takes:
+            Substring to be searched.
+        Returns:
+             A list of tuples: [(filename, fileid)...]
+        """
+        # TODO: Improve this section
+        if tag_subs is None:
+            query = "name contains '{}'".format(name_subs)
+        elif name_subs is None:
+            query_set = ["fullText contains '{}'".format(x) for x in tag_subs]
+            if do_and:
+                query = " and ".join(query_set)
+            else:
+                query = " or ".join(query_set)
+        else:
+            qn = "name contains '{}'".format(name_subs)
+            qt_set = ["fullText contains '{}'".format(x) for x in tag_subs]
+
+            if do_and:
+                query = qn + " and " + " and ".join(qt_set)
+
+        logger.debug("Following is the search query: " + query)
+
+        response = self.file_service.list(
+            q=query, pageSize=5, includeTeamDriveItems=True, supportsTeamDrives=True
+        ).execute()
+
+        items = response.get("files", [])
+        if not items:
+            logger.critical("No files were found matching the query.")
+            raise FileNotFound("Query returned empty")
+
+        response = [(f["name"], f["id"]) for f in items]
+        logger.debug("following information was returned.\n{}".format(response))
+        return response
+
     def read(self, fileid: str) -> str:
         """
         Read a file of the given id. Raises error if file does not already
@@ -176,33 +220,6 @@ class DriveStorage(object):
         else:
             logger.critical("Given file not found.")
             raise FileNotFound("{} not found on drive".format(fileid))
-
-    def search(self, name_subs: str) -> List[Tuple[str, str]]:
-        """
-        Search for a file in the drive. Many filters are supported but we currently only
-        search for a substring on a filename. It returns the names as well as fileids for
-        all matching objects.
-
-        Takes:
-            Substring to be searched.
-        Returns:
-             A list of tuples: [(filename, fileid)...]
-        """
-        query = "name contains '{}'".format(name_subs)
-        logger.debug("Following is the search query: " + query)
-
-        response = self.file_service.list(
-            q=query, pageSize=5, includeTeamDriveItems=True, supportsTeamDrives=True
-        ).execute()
-
-        items = response.get("files", [])
-        if not items:
-            logger.critical("No files were found matching the query.")
-            raise FileNotFound("Query returned empty")
-
-        response = [(f["name"], f["id"]) for f in items]
-        logger.debug("following information was returned.\n{}".format(response))
-        return response
 
     def delete(self, fileid: str) -> None:
         """
