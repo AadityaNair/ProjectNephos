@@ -25,6 +25,16 @@ class SearchHandler(object):
             help="Make sure all the tags are ANDed instead of ORed by default",
         )
 
+    def execute_command(self, name, tags, do_and):
+        if not name and not tags:
+            logger.critical(
+                "Neither name or tags specified. Atleast one is required. Exiting"
+            )
+            return
+        else:
+            response = self.backend.search(name_subs=name, tag_subs=tags, do_and=do_and)
+        return [(name, fid) for name, fid in response]
+
     def run(self, args: Namespace):
         logger.debug(args)
         if not args.name and not args.tags:
@@ -33,9 +43,7 @@ class SearchHandler(object):
             )
             return
         else:
-            response = self.backend.search(
-                name_subs=args.name, tag_subs=args.tags, do_and=args.do_and
-            )
+            response = self.execute_command(args.name, args.tags, args.do_and)
 
             #  TODO: Format Nicely
             print("Files\tIDs")
