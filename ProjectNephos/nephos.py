@@ -6,9 +6,14 @@ import logging
 from ProjectNephos.config import parse_config
 from ProjectNephos.handlers.upload import UploadHandler
 from ProjectNephos.handlers.search import SearchHandler
+from ProjectNephos.handlers.tag import TagHandler
 
 config = parse_config()
-ActionHandlers = [UploadHandler("upload", config), SearchHandler("search", config)]
+ActionHandlers = [
+    UploadHandler("upload", config),
+    SearchHandler("search", config),
+    TagHandler("tag", config),
+]
 
 
 def main():

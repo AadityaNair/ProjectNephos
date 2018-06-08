@@ -136,7 +136,10 @@ class DriveStorage(object):
         media = MediaFileUpload(
             filename=filename, mimetype=guess_type(filename)[0], chunksize=1024
         )
-        file_metadata = {"name": filename.split("/")[-1]}  # Get the filename from path
+        file_metadata = {
+            "name": filename.split("/")[-1],  # Get filename from path
+            "description": "",  # Required so that the field actually exists when the file is uploaded.
+        }
 
         f = self.file_service.create(body=file_metadata, media_body=media).execute()
         logger.info("File successfully uploaded.")
@@ -235,6 +238,29 @@ class DriveStorage(object):
 
         self.file_service.delete(fileId=fileid).execute()
         logger.debug("Fileid ({}) deleted.".format(fileid))
+
+    def tag(self, fileid: str, tags: List[str]) -> None:
+        """
+        Add the provided tag to a valid file. The current method of adding tags involves
+        directly writing the tag onto the description field of the file on the drive.
+
+        Note that this does not check if it is a valid tag. This is the caller's job.
+
+        Takes:
+            fileid of the object to be tagged.
+            a list of tags to be added.
+        """
+        if not self.is_exists(fileid):
+            logger.critical("Given file not found")
+            raise FileNotFound("The provided fileid {} does not exist".format(fileid))
+
+        # so as to not delete old contents:
+        info = self.file_service.get(fileId=fileid, fields="description").execute()
+        old_description = info["description"]
+
+        # TODO: We can do this better by overwriting repeating tags
+        metadata = {"description": old_description + "\n" + " \n".join(tags)}
+        self.file_service.update(fileId=fileid, body=metadata).execute()
 
     def add_permissions_user(self, fileid: str, email: str, role: str) -> dict:
         """
