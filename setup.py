@@ -32,6 +32,8 @@ setup(
         packages=['ProjectNephos'],
         install_requires=[
             'google-api-python-client',
+            'oauth2client',
+            'ffmpy',
         ],
         tests_require=[
             'pytest',

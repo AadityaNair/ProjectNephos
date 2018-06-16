@@ -7,12 +7,14 @@ from ProjectNephos.config import parse_config
 from ProjectNephos.handlers.upload import UploadHandler
 from ProjectNephos.handlers.search import SearchHandler
 from ProjectNephos.handlers.tag import TagHandler
+from ProjectNephos.handlers.process import ProcessHandler
 
 config = parse_config()
 ActionHandlers = [
     UploadHandler("upload", config),
     SearchHandler("search", config),
     TagHandler("tag", config),
+    ProcessHandler('process', config),
 ]
 
 
