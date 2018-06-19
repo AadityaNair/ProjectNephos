@@ -6,9 +6,9 @@ from raven.contrib.flask import Sentry
 from flask import Flask
 
 try:
-	from flask_cors import CORS
+    from flask_cors import CORS
 except ImportError:
-	CORS = None
+    CORS = None
 
 from ..env import cwd
 from ..version import __release__
@@ -20,46 +20,46 @@ log = logging.getLogger(__name__)
 
 
 class OurFlask(Flask):
-	def __init__(self, config):
 
-		# disable `static`-handler for the main application
-		# we will use static in bluprints (where required)
-		super().__init__(__name__, static_folder=None)
+    def __init__(self, config):
 
-		root = cwd()
-		self.root_path = root
-		self.config.root_path = root
+        # disable `static`-handler for the main application
+        # we will use static in bluprints (where required)
+        super().__init__(__name__, static_folder=None)
 
-		log.debug('Flask root path: [%s]', self.config.root_path)
+        root = cwd()
+        self.root_path = root
+        self.config.root_path = root
 
-		config.apply_defaults('FLASK', self.config)
-		self.config = config['FLASK']
+        log.debug("Flask root path: [%s]", self.config.root_path)
 
-		self.__host = str(config.get('web.host', '127.0.0.1'))
-		self.__port = int(config.get('web.port', 5000))
+        config.apply_defaults("FLASK", self.config)
+        self.config = config["FLASK"]
 
-		_sentry_dsn = self.config.get('sentry.dsn')
-		if _sentry_dsn:
-			self.sentry = Sentry(
-				self,
-				dsn=_sentry_dsn,
-				release=__release__,
+        self.__host = str(config.get("web.host", "127.0.0.1"))
+        self.__port = int(config.get("web.port", 5000))
 
-				logging=True,
-				level=logging.ERROR,
-			)
+        _sentry_dsn = self.config.get("sentry.dsn")
+        if _sentry_dsn:
+            self.sentry = Sentry(
+                self,
+                dsn=_sentry_dsn,
+                release=__release__,
+                logging=True,
+                level=logging.ERROR,
+            )
 
-		if CORS and self.debug:
-			CORS(api_blueprint)
-			log.warn('(FLASK DEBUG MODE) CORS enabled for API')
+        if CORS and self.debug:
+            CORS(api_blueprint)
+            log.warn("(FLASK DEBUG MODE) CORS enabled for API")
 
-		self.register_blueprint(api_blueprint, url_prefix='/api/v0')
-		self.register_blueprint(ui_blueprint)
-		log.debug('web-route handlers registered')
+        self.register_blueprint(api_blueprint, url_prefix="/api/v0")
+        self.register_blueprint(ui_blueprint)
+        log.debug("web-route handlers registered")
 
-	def run(self):
-		h = self.__host
-		p = self.__port
+    def run(self):
+        h = self.__host
+        p = self.__port
 
-		log.info('Starting web server on [%s:%s]', h, p)
-		super().run(host=h, port=p)
+        log.info("Starting web server on [%s:%s]", h, p)
+        super().run(host=h, port=p)

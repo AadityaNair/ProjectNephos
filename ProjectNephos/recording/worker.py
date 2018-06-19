@@ -50,172 +50,163 @@ log = logging.getLogger(__name__)
 
 
 def _to_start_date(date_str, timezonename):
-	if date_str is None:
-		return date_str
+    if date_str is None:
+        return date_str
 
-	now = arrow.get(datetime.datetime.now(), timezonename)
+    now = arrow.get(datetime.datetime.now(), timezonename)
 
-	try:
-		dt = arrow.get(date_str, 'HH:mm')
+    try:
+        dt = arrow.get(date_str, "HH:mm")
 
-		dt = dt.replace(
-			year=now.year,
-			month=now.month,
-			day=now.day,
-		)
-	except arrow.parser.ParserError:
-		log.error('Can not parse datetime string: [%s]', date_str)
-		return None
+        dt = dt.replace(year=now.year, month=now.month, day=now.day)
+    except arrow.parser.ParserError:
+        log.error("Can not parse datetime string: [%s]", date_str)
+        return None
 
-	return dt.datetime
+    return dt.datetime
 
 
 class ScheduledWorker:
 
-	__re_clean = re.compile('[^-_\w\d]', flags=re.A | re.I)
+    __re_clean = re.compile("[^-_\w\d]", flags=re.A | re.I)
 
-	def __init__(self, app_config):
+    def __init__(self, app_config):
 
-		# config:
-		connection_string = app_config.connection_string
-		tzname = str(app_config.get('scheduler.tz', 'utc'))
-		jobs_limit = int(app_config.get('scheduler.jobsLimit', 10))
-		jobs_root = str(app_config.get('capture.paths.jobsRoot'))
+        # config:
+        connection_string = app_config.connection_string
+        tzname = str(app_config.get("scheduler.tz", "utc"))
+        jobs_limit = int(app_config.get("scheduler.jobsLimit", 10))
+        jobs_root = str(app_config.get("capture.paths.jobsRoot"))
 
-		# TODO: remove this option! use per-task options
-		maintenance_enabled = str2bool(app_config.get('maintenance.enabled'))
-		# TODO: remove this option, count enabled tasks
-		maintenance_jobs_limit = int(app_config.get('maintenance.jobsLimit'))
+        # TODO: remove this option! use per-task options
+        maintenance_enabled = str2bool(app_config.get("maintenance.enabled"))
+        # TODO: remove this option, count enabled tasks
+        maintenance_jobs_limit = int(app_config.get("maintenance.jobsLimit"))
 
-		# create root directory for jobs temporary files
-		os.makedirs(jobs_root, exist_ok=True)
+        # create root directory for jobs temporary files
+        os.makedirs(jobs_root, exist_ok=True)
 
-		jobstores = {
-			'default': SQLAlchemyJobStore(url=connection_string),
-		}
+        jobstores = {"default": SQLAlchemyJobStore(url=connection_string)}
 
-		executors = {
-			# we are going to decode-encode video streams. That is why ProcessPool utilized.
-			'default': ProcessPoolExecutor(jobs_limit),
-		}
+        executors = {
+            # we are going to decode-encode video streams. That is why ProcessPool utilized.
+            "default": ProcessPoolExecutor(jobs_limit)
+        }
 
-		if maintenance_enabled:
-			jobstores['maintenance'] = MemoryJobStore()
-			executors['maintenance'] = ThreadPoolExecutor(maintenance_jobs_limit)
+        if maintenance_enabled:
+            jobstores["maintenance"] = MemoryJobStore()
+            executors["maintenance"] = ThreadPoolExecutor(maintenance_jobs_limit)
 
-		job_defaults = {
-			'coalesce': False,
-			'max_instances': 1,
-		}
-		s = BackgroundScheduler()
-		self._scheduler = s
-		self._tz = timezone(tzname)
-		self._tzname = tzname
-		self.jobs_root = jobs_root
+        job_defaults = {"coalesce": False, "max_instances": 1}
+        s = BackgroundScheduler()
+        self._scheduler = s
+        self._tz = timezone(tzname)
+        self._tzname = tzname
+        self.jobs_root = jobs_root
 
-		self._scheduler.configure(
-			jobstores=jobstores,
-			executors=executors,
-			job_defaults=job_defaults,
-			timezone=self._tz,
-		)
+        self._scheduler.configure(
+            jobstores=jobstores,
+            executors=executors,
+            job_defaults=job_defaults,
+            timezone=self._tz,
+        )
 
-		log.info('scheduler configured, timezone=[%s]', self._tz)
+        log.info("scheduler configured, timezone=[%s]", self._tz)
 
-		# ----------------------------------------------------------------------
-		# connect event listeners
-		# ----------------------------------------------------------------------
-		self._connect_listeners(app_config)
+        # ----------------------------------------------------------------------
+        # connect event listeners
+        # ----------------------------------------------------------------------
+        self._connect_listeners(app_config)
 
-		# TODO: remove __app_config
-		self.__app_config = app_config
+        # TODO: remove __app_config
+        self.__app_config = app_config
 
-		# ----------------------------------------------------------------------
-		# add maitenance jobs
-		# ----------------------------------------------------------------------
-		if maintenance_enabled:
-			self._add_maintenance_jobs(app_config)
+        # ----------------------------------------------------------------------
+        # add maitenance jobs
+        # ----------------------------------------------------------------------
+        if maintenance_enabled:
+            self._add_maintenance_jobs(app_config)
 
-	def _connect_listeners(self, app_config):
-		s = self._scheduler
+    def _connect_listeners(self, app_config):
+        s = self._scheduler
 
-		executed_listener = JobExecutedEventHandler(app_config)
-		s.add_listener(executed_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
+        executed_listener = JobExecutedEventHandler(app_config)
+        s.add_listener(executed_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
 
-		# s.add_listener(
-		# 	event_broadcasting,
-		# 	EVENT_JOB_ADDED | EVENT_JOB_SUBMITTED | EVENT_JOB_MODIFIED
-		# )
+        # s.add_listener(
+        # 	event_broadcasting,
+        # 	EVENT_JOB_ADDED | EVENT_JOB_SUBMITTED | EVENT_JOB_MODIFIED
+        # )
 
-	def _add_maintenance_jobs(self, app_config):
+    def _add_maintenance_jobs(self, app_config):
 
-		jobs = app_config.get('maintenance.jobs')
+        jobs = app_config.get("maintenance.jobs")
 
-		if jobs is None:
-			log.warn('All maintenance jobs are disabled: config.maintenance.jobs is empty)')
-			return
+        if jobs is None:
+            log.warn(
+                "All maintenance jobs are disabled: config.maintenance.jobs is empty)"
+            )
+            return
 
-		if not isinstance(jobs, dict):
-			raise ValueError('Config: maintenance.jobs must be a dict')
+        if not isinstance(jobs, dict):
+            raise ValueError("Config: maintenance.jobs must be a dict")
 
-		default_start_date = arrow.get()
+        default_start_date = arrow.get()
 
-		for name, config in jobs.items():
-			job_type = config['type']
-			interval_min = int(config.get('interval', '30'))
-			start_at = config.get('at')
+        for name, config in jobs.items():
+            job_type = config["type"]
+            interval_min = int(config.get("interval", "30"))
+            start_at = config.get("at")
 
-			if start_at is not None:
-				start_at = _to_start_date(start_at, self._tzname)
+            if start_at is not None:
+                start_at = _to_start_date(start_at, self._tzname)
 
-			# if JOB.at is not defined, or cannot be parsed - use default
-			# start time:
-			if start_at is None:
-				log.debug('maintenance task [%s] will use the default start time', name)
-				default_start_date = default_start_date.shift(seconds=5)
-				start_at = default_start_date.datetime
+                # if JOB.at is not defined, or cannot be parsed - use default
+                # start time:
+            if start_at is None:
+                log.debug("maintenance task [%s] will use the default start time", name)
+                default_start_date = default_start_date.shift(seconds=5)
+                start_at = default_start_date.datetime
 
-			trig = IntervalTrigger(
-				minutes=interval_min,
-				start_date=start_at,
-				timezone=self._tz,
-			)
+            trig = IntervalTrigger(
+                minutes=interval_min, start_date=start_at, timezone=self._tz
+            )
 
-			# TODO: it is not a good idea to pass the entire app_config to the job.
-			# But it's the fastest way for implementation
-			all_job_args = [app_config]
+            # TODO: it is not a good idea to pass the entire app_config to the job.
+            # But it's the fastest way for implementation
+            all_job_args = [app_config]
 
-			fn = 'unav.recordingmonitor.jobs.maintenance.{}:start'.format(job_type)
+            fn = "unav.recordingmonitor.jobs.maintenance.{}:start".format(job_type)
 
-			self._scheduler.add_job(
-				fn,
-				trigger=trig,
-				args=all_job_args,
-				id=job_type,
-				name=job_type,
-				coalesce=True,
-				max_instances=1,
-				jobstore='maintenance',
-				executor='maintenance',
-				replace_existing=True,
-			)
+            self._scheduler.add_job(
+                fn,
+                trigger=trig,
+                args=all_job_args,
+                id=job_type,
+                name=job_type,
+                coalesce=True,
+                max_instances=1,
+                jobstore="maintenance",
+                executor="maintenance",
+                replace_existing=True,
+            )
 
-			log.debug(
-				'maintenance task [%s] of type [%s] will start at [%s] with interval [%s] minutes',
-				name,
-				job_type,
-				start_at,
-				interval_min
-			)
+            log.debug(
+                "maintenance task [%s] of type [%s] will start at [%s] with interval [%s] minutes",
+                name,
+                job_type,
+                start_at,
+                interval_min,
+            )
 
-	def run(self):
-		self._scheduler.start()
+    def run(self):
+        self._scheduler.start()
 
-	def shutdown(self, wait=True):
-		self._scheduler.shutdown(wait)
+    def shutdown(self, wait=True):
+        self._scheduler.shutdown(wait)
 
-	def job_list(self):
-		'''
+    def job_list(self):
+        """
 		List all known jobs
 
 		Result contains:
@@ -230,11 +221,11 @@ class ScheduledWorker:
 
 		:returns: List of jobs
 		:rtype: list<Job>
-		'''
-		return self._scheduler.get_jobs(jobstore='default')
+		"""
+        return self._scheduler.get_jobs(jobstore="default")
 
-	def job_add(self, job_info_model):
-		'''
+    def job_add(self, job_info_model):
+        """
 		Add a job to scheduler
 
 		[description]
@@ -243,187 +234,179 @@ class ScheduledWorker:
 		:returns: scheduler job
 		:rtype: apscheduler.job.Job
 		:raises: HandleJobError
-		'''
+		"""
 
-		ji = job_info_model
+        ji = job_info_model
 
-		job_info_ID = ji.ID
-		job_name = ji.name
-		template_name = ji.template_name
-		date_from = ji.date_from
-		duration_sec = ji.duration_sec
-		job_timezone = ji.timezone
-		channel_ID = ji.channel_ID
-		job_params = ji.job_params
-		repeat = ji.repeat
+        job_info_ID = ji.ID
+        job_name = ji.name
+        template_name = ji.template_name
+        date_from = ji.date_from
+        duration_sec = ji.duration_sec
+        job_timezone = ji.timezone
+        channel_ID = ji.channel_ID
+        job_params = ji.job_params
+        repeat = ji.repeat
 
-		tpl_name = self.__re_clean.sub('', template_name)
+        tpl_name = self.__re_clean.sub("", template_name)
 
-		if tpl_name:
-			tpl_path = 'jobs.templates.{}'.format(tpl_name)
-			job_type_path = 'jobs.templates.{}.type'.format(tpl_name)
+        if tpl_name:
+            tpl_path = "jobs.templates.{}".format(tpl_name)
+            job_type_path = "jobs.templates.{}.type".format(tpl_name)
 
-			log.debug('creating a job using a template [%s]', tpl_path)
-			template_config = self.__app_config.get(tpl_path)
-			job_type = self.__app_config.get(job_type_path)
-		else:
-			job_type = None
+            log.debug("creating a job using a template [%s]", tpl_path)
+            template_config = self.__app_config.get(tpl_path)
+            job_type = self.__app_config.get(job_type_path)
+        else:
+            job_type = None
 
-		if not job_type:
-			log.error('Job with unknown template [%s] requested', tpl_name)
-			raise ConfigureJobError(
-				'Job with unknown template',
-				template_name=tpl_name
-			)
+        if not job_type:
+            log.error("Job with unknown template [%s] requested", tpl_name)
+            raise ConfigureJobError("Job with unknown template", template_name=tpl_name)
 
-		fn_name = 'unav.recordingmonitor.jobs.templates.{}:start'.format(job_type)
+        fn_name = "unav.recordingmonitor.jobs.templates.{}:start".format(job_type)
 
-		trig = _create_trigger_from_repeat(date_from, job_timezone, repeat)
-		log.debug('trigger for job [%s]', trig)
+        trig = _create_trigger_from_repeat(date_from, job_timezone, repeat)
+        log.debug("trigger for job [%s]", trig)
 
-		missfire_sec = duration_sec
+        missfire_sec = duration_sec
 
-		eff_job_params = {}
-		eff_job_params.update(job_params)
+        eff_job_params = {}
+        eff_job_params.update(job_params)
 
-		# predefined system params:
-		eff_job_params.update({
-			'job_root_dir': self.jobs_root,
-			'job_rmdir': self.__app_config.get('capture.rmdir', True),
-			'connection_string': self.__app_config.connection_string,
+        # predefined system params:
+        eff_job_params.update(
+            {
+                "job_root_dir": self.jobs_root,
+                "job_rmdir": self.__app_config.get("capture.rmdir", True),
+                "connection_string": self.__app_config.connection_string,
+                "job_ID": job_info_ID,
+                "job_name": job_name,
+                "job_main_duration_sec": duration_sec,
+                "channel_ID": channel_ID,
+                "timezone": ji.timezone,
+                "meta_teletext_page": ji.meta_teletext_page,
+                "meta_country_code": ji.meta_country_code,
+                "meta_language_code3": ji.meta_language_code3,
+                "meta_video_source": ji.meta_video_source,
+                # TODO: remove, bcz it is necessary only for "capturing" job:
+                "capture_address": self.__app_config.get("capture.address"),
+            }
+        )
 
-			'job_ID': job_info_ID,
-			'job_name': job_name,
-			'job_main_duration_sec': duration_sec,
+        # IMPORTANT: must be serializable!
+        all_job_args = [template_config, eff_job_params]
 
-			'channel_ID': channel_ID,
+        # add_job(
+        # 	func,
+        # 	trigger=None,
+        # 	args=None,
+        # 	kwargs=None,
+        # 	id=None,
+        # 	name=None,
+        # 	misfire_grace_time=undefined,
+        # 	coalesce=undefined,
+        # 	max_instances=undefined,
+        # 	next_run_time=undefined,
+        # 	jobstore='default',
+        # 	executor='default',
+        # 	replace_existing=False,
+        # 	**trigger_args
+        # )
 
-			'timezone':            ji.timezone,
+        sj = self._scheduler.add_job(
+            fn_name,
+            trigger=trig,
+            args=all_job_args,
+            name=str(job_info_ID),
+            misfire_grace_time=missfire_sec,
+            coalesce=True,
+            jobstore="default",
+            replace_existing=True,
+        )
 
-			'meta_teletext_page':  ji.meta_teletext_page,
-			'meta_country_code':   ji.meta_country_code,
-			'meta_language_code3': ji.meta_language_code3,
-			'meta_video_source':   ji.meta_video_source,
+        log.info(
+            "job added: name [%s] template[%s] start at [%s], trigger [%s]",
+            ji.name,
+            ji.template_name,
+            ji.date_from,
+            trig,
+        )
 
-			# TODO: remove, bcz it is necessary only for "capturing" job:
-			'capture_address': self.__app_config.get('capture.address'),
-		})
+        return sj
 
-		# IMPORTANT: must be serializable!
-		all_job_args = [template_config, eff_job_params]
+    def job_remove(self, ID):
 
-		# add_job(
-		# 	func,
-		# 	trigger=None,
-		# 	args=None,
-		# 	kwargs=None,
-		# 	id=None,
-		# 	name=None,
-		# 	misfire_grace_time=undefined,
-		# 	coalesce=undefined,
-		# 	max_instances=undefined,
-		# 	next_run_time=undefined,
-		# 	jobstore='default',
-		# 	executor='default',
-		# 	replace_existing=False,
-		# 	**trigger_args
-		# )
-
-		sj = self._scheduler.add_job(
-			fn_name,
-			trigger=trig,
-			args=all_job_args,
-			name=str(job_info_ID),
-			misfire_grace_time=missfire_sec,
-			coalesce=True,
-			jobstore='default',
-			replace_existing=True,
-		)
-
-		log.info(
-			'job added: name [%s] template[%s] start at [%s], trigger [%s]',
-			ji.name,
-			ji.template_name,
-			ji.date_from,
-			trig,
-		)
-
-		return sj
-
-	def job_remove(self, ID):
-
-		self._scheduler.remove_job(ID)
+        self._scheduler.remove_job(ID)
 
 
 def _create_trigger_from_repeat(date_from, timezone, repeat):
 
-	def _pop_date_trim(obj):
-		_str = obj.pop('date_trim', None)
-		if _str is None:
-			return None
+    def _pop_date_trim(obj):
+        _str = obj.pop("date_trim", None)
+        if _str is None:
+            return None
 
-		return arrow.get(_str).datetime
+        return arrow.get(_str).datetime
 
-	_dt = date_from.datetime if date_from else None
+    _dt = date_from.datetime if date_from else None
 
-	_cron = pydash.get(repeat, 'cron')
-	_interval = pydash.get(repeat, 'interval')
+    _cron = pydash.get(repeat, "cron")
+    _interval = pydash.get(repeat, "interval")
 
-	if _cron:
-		_cron['start_date'] = _dt
-		_cron['end_date'] = _pop_date_trim(_cron)
-		if timezone:
-			_cron['timezone'] = timezone
-		trig = CronTrigger(**_cron)
-	elif _interval:
-		_interval['start_date'] = _dt
-		_interval['end_date'] = _pop_date_trim(_interval)
-		if timezone:
-			_interval['timezone'] = timezone
-		trig = IntervalTrigger(**_interval)
-	else:
-		_bydate = {}
-		_bydate['run_date'] = _dt
-		if timezone:
-			_bydate['timezone'] = timezone
-		trig = DateTrigger(**_bydate)
+    if _cron:
+        _cron["start_date"] = _dt
+        _cron["end_date"] = _pop_date_trim(_cron)
+        if timezone:
+            _cron["timezone"] = timezone
+        trig = CronTrigger(**_cron)
+    elif _interval:
+        _interval["start_date"] = _dt
+        _interval["end_date"] = _pop_date_trim(_interval)
+        if timezone:
+            _interval["timezone"] = timezone
+        trig = IntervalTrigger(**_interval)
+    else:
+        _bydate = {}
+        _bydate["run_date"] = _dt
+        if timezone:
+            _bydate["timezone"] = timezone
+        trig = DateTrigger(**_bydate)
 
-	return trig
+    return trig
 
 
 class JobExecutedEventHandler:
 
-	def __init__(self, app_config):
-		self.base_job_result_processor = BaseJobResultProcessor(app_config)
+    def __init__(self, app_config):
+        self.base_job_result_processor = BaseJobResultProcessor(app_config)
 
-		self.job_result_processors = {
-			FreeSpaceJobResultProcessor.KIND: FreeSpaceJobResultProcessor(app_config),
-			ChannelOnAirJobResultProcessor.KIND: ChannelOnAirJobResultProcessor(app_config),
-		}
+        self.job_result_processors = {
+            FreeSpaceJobResultProcessor.KIND: FreeSpaceJobResultProcessor(app_config),
+            ChannelOnAirJobResultProcessor.KIND: ChannelOnAirJobResultProcessor(
+                app_config
+            ),
+        }
 
-	def __call__(self, event):
-		# event: apscheduler.events.JobExecutionEvent
+    def __call__(self, event):
+        # event: apscheduler.events.JobExecutionEvent
 
-		# code – the type code of this event
-		# alias – alias of the job store or executor that was added or removed (if applicable)
-		# job_id – identifier of the job in question
-		# jobstore – alias of the job store containing the job in question
-		# scheduled_run_time – the time when the job was scheduled to be run
-		# retval – the return value of the successfully executed job
-		# exception – the exception raised by the job
-		# traceback
+        # code – the type code of this event
+        # alias – alias of the job store or executor that was added or removed (if applicable)
+        # job_id – identifier of the job in question
+        # jobstore – alias of the job store containing the job in question
+        # scheduled_run_time – the time when the job was scheduled to be run
+        # retval – the return value of the successfully executed job
+        # exception – the exception raised by the job
+        # traceback
 
-		log.debug('APScheduler Event: job executed [%s]', event.job_id)
+        log.debug("APScheduler Event: job executed [%s]", event.job_id)
 
-		# TODO: don't use KIND as a type-detector, use JOB data to differentiate
-		job_kind = pydash.get(event.retval, 'kind')
+        # TODO: don't use KIND as a type-detector, use JOB data to differentiate
+        job_kind = pydash.get(event.retval, "kind")
 
-		proc = self.job_result_processors.get(job_kind)
-		if not proc:
-			proc = self.base_job_result_processor
+        proc = self.job_result_processors.get(job_kind)
+        if not proc:
+            proc = self.base_job_result_processor
 
-		proc.handle_event(
-			event.retval,
-			event.exception,
-			event.traceback
-		)
+        proc.handle_event(event.retval, event.exception, event.traceback)

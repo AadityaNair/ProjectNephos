@@ -12,23 +12,19 @@ log = logging.getLogger(__name__)
 
 
 # output
-_pid_fields = {
-	'pid':        fields.Integer,
-}
+_pid_fields = {"pid": fields.Integer}
 
 
 class PingResource(Resource):
 
-	@marshal_with({}, envelope='data')
-	def get(self):
-		return True
+    @marshal_with({}, envelope="data")
+    def get(self):
+        return True
 
 
 class GetPidResource(Resource):
 
-	@marshal_with(_pid_fields, envelope='data')
-	def get(self):
-		pid = os.getpid()
-		return {
-			'pid': pid,
-		}
+    @marshal_with(_pid_fields, envelope="data")
+    def get(self):
+        pid = os.getpid()
+        return {"pid": pid}
