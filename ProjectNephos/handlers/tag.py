@@ -9,6 +9,17 @@ logger = getLogger(__name__)
 
 
 class TagHandler(object):
+    """
+    This class is used to tag *uploaded* files. Tags currently are just strings
+    that are added in the file's description field.
+    These tags are of the form: "<tag>:<value>"
+
+    This has two main drawbacks as of now,
+        1. No control over the tag types. User can upload any data as tag.
+        2. Updating tags is not implemented.
+
+    NOTE: Mechanism to tag file while uploading has not yet been implemented.
+    """
 
     def __init__(self, subcommand: str, config: ConfigParser):
         self.subcommand = subcommand

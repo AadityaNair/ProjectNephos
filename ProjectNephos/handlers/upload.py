@@ -9,6 +9,11 @@ logger = getLogger(__name__)
 
 
 class UploadHandler(object):
+    """
+    Upload files to google drive. Really, that's it. You supply it a file or
+    a list of files and this will upload it for you. Raises errors on non-existant
+    files based on the --ignore-errors argument.
+    """
 
     def __init__(self, subcommand: str, config: ConfigParser):
         self.subcommand = subcommand

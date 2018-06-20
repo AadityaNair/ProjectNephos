@@ -10,6 +10,15 @@ logger = getLogger(__name__)
 
 
 class ProcessHandler(object):
+    """
+    This class handles conversion of downloaded data. The recorded data will most likely
+    be compressed to save space. The only functionality this class provides as of now is to
+    take an input file and save an converted file.
+
+    This does not delete the original file as of now.
+    The conversion format is inferred from the name/extension of the output file, so make
+    sure to name it correctly
+    """
 
     def __init__(self, subcommand: str, config: ConfigParser):
         self.subcommand = subcommand

@@ -8,6 +8,23 @@ logger = getLogger(__name__)
 
 
 class SearchHandler(object):
+    """
+    This class does the searching. You provide it with search parameters and
+    it find all matching files and their corresponding ids.
+
+    This takes two search parameters: name and tags.
+    *Name* is the actual filename it was uploaded with. Only one is allowed.
+    *Tag* is the metadata the file was tagged with as defined in the TagHandler docs.
+     There can be multiple tags supplied.
+
+     Searching requires atleast one of them. If there are multiple tags or if both of
+     them are supplied, the *do_and* parameter comes into play.
+     If it is false, the search terms will be combined with an OR operator,
+     i.e. "name OR tag1 OR tag2 ..."
+     If true though, the ORs are replaced with ANDs, "name AND tag1 AND tag2 ..."
+
+     More fine-grained controls will be added later.
+    """
 
     def __init__(self, subcommand: str, config: ConfigParser):
         self.subcommand = subcommand
