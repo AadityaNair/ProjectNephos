@@ -6,15 +6,22 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 # These values will be applied when there is no config file specified.
+BASE_FOLDER = "~/.nephos"
 default_values = {
     "google": {
         "client_secret_location": "~/projects/ProjectNephos/client_secret.json",
-        "auth_token_location": "~/.credentials/access.json",
+        "auth_token_location": BASE_FOLDER + "/credentials/access.json",
     },
-    "downloads": {"local_save_location": "~/nephos/"},
+    "downloads": {
+        "local_save_location": BASE_FOLDER + "/files/",
+        "temp_save_location": BASE_FOLDER + "/temp_files",
+    },
+    "recording": {
+        "db_location": BASE_FOLDER + '/nephos.sqlite'
+    }
 }
 
-USER_CONFIG_LOC = "/tmp/test/"  # TODO: Fill better info at the end
+USER_CONFIG_LOC = BASE_FOLDER
 USER_CONFIG_FNAME = "config.ini"
 config = ConfigParser()
 
@@ -24,7 +31,7 @@ def parse_config() -> ConfigParser:
     Read the config file into an object. It also creates a default of one doesn't already exist
     :return Config object
     """
-    full_path = USER_CONFIG_LOC + USER_CONFIG_FNAME
+    full_path = USER_CONFIG_LOC + "/" + USER_CONFIG_FNAME
 
     if not os.path.isfile(full_path):
         config.read_dict(default_values)
