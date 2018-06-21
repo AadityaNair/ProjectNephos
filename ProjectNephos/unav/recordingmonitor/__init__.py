@@ -29,53 +29,53 @@ def main():
     # ------------------------------------------------------------
     # ARGS PARSE:
     # ------------------------------------------------------------
-    aparser = argparse.ArgumentParser(description=__description__, add_help=False)
+    # aparser = argparse.ArgumentParser(description=__description__, add_help=False)
 
-    aparser.add_argument(
-        "--config-path",
-        "-c",
-        type=str,
-        help="Path to configuration file",
-        default="recordingmonitor.yml",
-    )
-    aparser.add_argument(
-        "--daemonize",
-        "-d",
-        action="store_true",
-        help="Run RecordingMonitor as a daemon",
-    )
+    # aparser.add_argument(
+        # "--config-path",
+        # "-c",
+        # type=str,
+        # help="Path to configuration file",
+        # default="recordingmonitor.yml",
+    # )
+    # aparser.add_argument(
+        # "--daemonize",
+        # "-d",
+        # action="store_true",
+        # help="Run RecordingMonitor as a daemon",
+    # )
 
-    silent_parser = aparser.add_mutually_exclusive_group(required=False)
-    silent_parser.add_argument(
-        "--silent",
-        dest="silent",
-        action="store_true",
-        help="Hide a greeting message and several other `print` messages",
-    )
-    silent_parser.add_argument(
-        "--no-silent",
-        dest="silent",
-        action="store_false",
-        help="Show all additional messages (do not affect logging). Default.",
-    )
-    aparser.set_defaults(silent=False)
+    # silent_parser = aparser.add_mutually_exclusive_group(required=False)
+    # silent_parser.add_argument(
+        # "--silent",
+        # dest="silent",
+        # action="store_true",
+        # help="Hide a greeting message and several other `print` messages",
+    # )
+    # silent_parser.add_argument(
+        # "--no-silent",
+        # dest="silent",
+        # action="store_false",
+        # help="Show all additional messages (do not affect logging). Default.",
+    # )
+    # aparser.set_defaults(silent=False)
 
-    aparser.add_argument("--version", "-V", action="version", version=__version__)
-    aparser.add_argument("--help", "-?", action="help")
+    # aparser.add_argument("--version", "-V", action="version", version=__version__)
+    # aparser.add_argument("--help", "-?", action="help")
 
-    args = aparser.parse_args()
+    # args = aparser.parse_args()
 
-    if not args.silent:
-        print("-" * 40)
-        print(
-            "{title} [{release}]\n{description}\n{copyright}\n".format(
-                title=__title__,
-                release=__release__,
-                description=__description__,
-                copyright=__copyright__,
-            )
-        )
-        print("-" * 40)
+    # if not args.silent:
+        # print("-" * 40)
+        # print(
+            # "{title} [{release}]\n{description}\n{copyright}\n".format(
+                # title=__title__,
+                # release=__release__,
+                # description=__description__,
+                # copyright=__copyright__,
+            # )
+        # )
+        # print("-" * 40)
 
         # ------------------------------------------------------------
 
@@ -84,7 +84,8 @@ def main():
     # ------------------------------------------------------------
     # Init app
     # ------------------------------------------------------------
-    wapp = Application(config_path=args.config_path)
+    # wapp = Application(config_path=args.config_path)
+    wapp = Application(config_path='recordingmonitor.yml')
 
     def _cleanup():
         wapp.cleanup()
