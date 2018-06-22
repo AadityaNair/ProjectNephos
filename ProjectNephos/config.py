@@ -1,6 +1,5 @@
 import os
 from configparser import ConfigParser, NoOptionError, NoSectionError
-from io import StringIO
 from logging import getLogger
 
 from ProjectNephos.exceptions import FileNotFound
@@ -12,7 +11,7 @@ BASE_FOLDER = "~/.nephos"
 default_values = {
     "google": {
         "client_secret_location": "~/projects/ProjectNephos/client_secret.json",
-        "auth_token_location": BASE_FOLDER + "/credentials/access.json",
+        "auth_token_location": BASE_FOLDER + "/access.json",
     },
     "downloads": {
         "local_save_location": BASE_FOLDER + "/files/",
@@ -36,7 +35,7 @@ default_values = {
 
 USER_CONFIG_LOC = BASE_FOLDER
 USER_CONFIG_FNAME = "config.ini"
-CONFIG_FULL_PATH_DEFAULT = USER_CONFIG_LOC + "/" + USER_CONFIG_FNAME
+CONFIG_FULL_PATH_DEFAULT = os.path.expanduser(USER_CONFIG_LOC + "/" + USER_CONFIG_FNAME)
 config = ConfigParser()
 
 
@@ -92,6 +91,7 @@ class Configuration(object):
             return True
         if value.startswith("~"):
             return os.path.expanduser(value)
+        return value
 
     def __getitem__(self, tup):
         return self.get(tup[0], tup[1])
