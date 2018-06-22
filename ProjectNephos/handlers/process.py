@@ -1,6 +1,6 @@
+from ProjectNephos.config import Configuration
 from ProjectNephos.exceptions import FileNotFound
 
-from configparser import ConfigParser
 from argparse import _SubParsersAction, Namespace
 from logging import getLogger
 from os.path import isfile
@@ -20,11 +20,13 @@ class ProcessHandler(object):
     sure to name it correctly
     """
 
-    def __init__(self, subcommand: str, config: ConfigParser):
+    def __init__(self, subcommand: str):
         self.subcommand = subcommand
+
+    def init_with_config(self, config: Configuration):
         self.config = config
 
-    def _init_args(self, subparser: _SubParsersAction):
+    def init_args(self, subparser: _SubParsersAction):
         parser = subparser.add_parser(self.subcommand)
 
         parser.add_argument(

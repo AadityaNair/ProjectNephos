@@ -1,5 +1,5 @@
 from json import JSONDecodeError
-from os.path import isfile, expanduser
+from os.path import isfile
 from typing import List, Tuple
 from mimetypes import guess_type
 
@@ -108,8 +108,8 @@ class DriveStorage(object):
         This will try to authorize with your google account before proceeding.
         """
         credentials = self._get_credentials(
-            credential_path=expanduser(config["google"]["auth_token_location"]),
-            client_secret_loc=expanduser(config["google"]["client_secret_location"]),
+            credential_path=config["google", "auth_token_location"],
+            client_secret_loc=config["google", "client_secret_location"],
         )
         http = credentials.authorize(Http())
         service = discovery.build("drive", "v3", http=http)

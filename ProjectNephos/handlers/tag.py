@@ -1,7 +1,7 @@
 from ProjectNephos.backends.GDrive import DriveStorage
+from ProjectNephos.config import Configuration
 from ProjectNephos.handlers.search import SearchHandler
 
-from configparser import ConfigParser
 from argparse import _SubParsersAction, Namespace
 from logging import getLogger
 
@@ -21,12 +21,17 @@ class TagHandler(object):
     NOTE: Mechanism to tag file while uploading has not yet been implemented.
     """
 
-    def __init__(self, subcommand: str, config: ConfigParser):
+    def __init__(self, subcommand: str):
         self.subcommand = subcommand
-        self.backend = DriveStorage(config)
-        self.search = SearchHandler("search", config)
 
-    def _init_args(self, subparser: _SubParsersAction) -> None:
+    def init_with_config(self, config: Configuration):
+        self.config = config
+        self.backend = DriveStorage(config)
+
+        self.search = SearchHandler("search")
+        self.search.init_with_config(config)
+
+    def init_args(self, subparser: _SubParsersAction) -> None:
         parser = subparser.add_parser(self.subcommand)
         parser.add_argument(
             "--for_name",
@@ -53,7 +58,9 @@ class TagHandler(object):
 
         filenames = [x[0] for x in relevant_files]
         logger.debug("The following files were found: {}".format(filenames))
-        logger.debug("The following tags are going to be added: {}".format(args.add_tags))
+        logger.debug(
+            "The following tags are going to be added: {}".format(args.add_tags)
+        )
 
         file_ids = [x[1] for x in relevant_files]
 

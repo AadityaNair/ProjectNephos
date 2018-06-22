@@ -1,6 +1,5 @@
 from ProjectNephos.backends.GDrive import DriveStorage
-
-from configparser import ConfigParser
+from ProjectNephos.config import Configuration
 from argparse import _SubParsersAction, Namespace
 from logging import getLogger
 from os import path
@@ -15,13 +14,16 @@ class UploadHandler(object):
     files based on the --ignore-errors argument.
     """
 
-    def __init__(self, subcommand: str, config: ConfigParser):
+    def __init__(self, subcommand: str):
         self.subcommand = subcommand
-        self.backend = DriveStorage(config)
 
-    def _init_args(self, subparser: _SubParsersAction) -> None:
+    def init_args(self, subparser: _SubParsersAction) -> None:
         parser = subparser.add_parser(self.subcommand)
         parser.add_argument("files", nargs="+", help="Files you want to upload.")
+
+    def init_with_config(self, config: Configuration):
+        self.config = config
+        self.backend = DriveStorage(config)
 
     def run(self, args: Namespace):
         if not args.ignore_errors:

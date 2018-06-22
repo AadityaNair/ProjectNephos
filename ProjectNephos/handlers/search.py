@@ -1,6 +1,6 @@
 from ProjectNephos.backends.GDrive import DriveStorage
+from ProjectNephos.config import Configuration
 
-from configparser import ConfigParser
 from argparse import _SubParsersAction, Namespace
 from logging import getLogger
 
@@ -26,11 +26,14 @@ class SearchHandler(object):
      More fine-grained controls will be added later.
     """
 
-    def __init__(self, subcommand: str, config: ConfigParser):
+    def __init__(self, subcommand: str):
         self.subcommand = subcommand
+
+    def init_with_config(self, config: Configuration):
+        self.config = config
         self.backend = DriveStorage(config)
 
-    def _init_args(self, subparser: _SubParsersAction) -> None:
+    def init_args(self, subparser: _SubParsersAction) -> None:
         parser = subparser.add_parser(self.subcommand)
         parser.add_argument("--name", action="store", help="Search for a name")
         parser.add_argument(
