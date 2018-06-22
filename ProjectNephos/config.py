@@ -1,7 +1,9 @@
 import os
-from configparser import ConfigParser
+from configparser import ConfigParser, NoOptionError, NoSectionError
 from io import StringIO
 from logging import getLogger
+
+from ProjectNephos.exceptions import FileNotFound
 
 logger = getLogger(__name__)
 
@@ -16,40 +18,80 @@ default_values = {
         "local_save_location": BASE_FOLDER + "/files/",
         "temp_save_location": BASE_FOLDER + "/temp_files",
     },
-    "recording": {
-        "db_location": BASE_FOLDER + '/nephos.sqlite'
-    }
+    "recording": {"driver": "sqlite", "db_location": BASE_FOLDER + "/nephos.sqlite"},
+    "web": {"host": "0.0.0.0", "port": "5000"},
+    "mail": {
+        "smtp_port": "465",
+        "host": "localhost",
+        "ssl": "True",
+        "tls": "False",
+        "username": "None",
+        "password": "None",
+        "subject": "Project Nephos",
+        "from": "projectnephos@localhost.local",
+        "to": "example@localhost.local",
+    },
+    "others": {"sentry_dsn": ""},
 }
 
 USER_CONFIG_LOC = BASE_FOLDER
 USER_CONFIG_FNAME = "config.ini"
+CONFIG_FULL_PATH_DEFAULT = USER_CONFIG_LOC + "/" + USER_CONFIG_FNAME
 config = ConfigParser()
 
 
-def parse_config() -> ConfigParser:
+class Configuration(object):
     """
-    Read the config file into an object. It also creates a default of one doesn't already exist
-    :return Config object
-    """
-    full_path = USER_CONFIG_LOC + "/" + USER_CONFIG_FNAME
+    This class handles all requests for the config information.
+    It takes a path to a config file. If no path is provided, it will take the
+    default values defined above.
+    It also makes the following conversions,
+        1. Change None, True, False strings into actual None, True, False booleans.
+        2. All strings starting with ~ are converted to full path
 
-    if not os.path.isfile(full_path):
-        config.read_dict(default_values)
-        logger.info(
-            "Config file does not exist. Creating a new one at {}".format(
-                USER_CONFIG_LOC
+    Takes:
+        (optional) path to config file.
+    Returns:
+        Config object
+    """
+
+    def __init__(self, config_path: str = None):
+        c = ConfigParser()
+
+        # Load the default values first.
+        c.read_dict(default_values)
+
+        if config_path is not None:
+            if not os.path.isfile(os.path.expanduser(config_path)):
+                if config_path == CONFIG_FULL_PATH_DEFAULT:
+                    raise FileNotFound(
+                        "Default file not yet created. Try running `nephos init`"
+                    )
+                else:
+                    raise FileNotFound("Specified config not found")
+            else:
+                c.read(config_path)
+
+        self.conf_items = c
+
+    def get(self, section, key):
+        try:
+            value = self.conf_items.get(section, key)
+        except NoSectionError:
+            raise NoSectionError("Section '{}' not found".format(section))
+        except NoOptionError:
+            raise NoOptionError(
+                "Section '{}' does not contain a key '{}'".format(section, key)
             )
-        )
 
-        os.makedirs(USER_CONFIG_LOC, exist_ok=True)
-        with open(full_path, "w") as f:
-            config.write(f)
-    else:
-        config.read(full_path)
-        logger.info("Config found and read")
-        ini = StringIO()
-        config.write(ini)
-        logger.debug("Following config was read")
-        logger.debug(ini.getvalue())
+        if value == "None":
+            return None
+        if value == "False":
+            return False
+        if value == "True":
+            return True
+        if value.startswith("~"):
+            return os.path.expanduser(value)
 
-    return config
+    def __getitem__(self, tup):
+        return self.get(tup[0], tup[1])
