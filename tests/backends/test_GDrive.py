@@ -25,10 +25,8 @@ def test_default_object_creation(getc, Http, build):
     build.return_value = service
 
     config = {
-        "google": {
-            "auth_token_location": "random4",
-            "client_secret_location": "random5",
-        }
+        ("google", "auth_token_location"): "random4",
+        ("google", "client_secret_location"): "random5",
     }
     g = DriveStorage(config)
 
@@ -42,7 +40,6 @@ def test_default_object_creation(getc, Http, build):
     assert g.perm_service == "random3"
 
 
-@patch(MODULE_NAME + ".expanduser")
 @patch(MODULE_NAME + ".discovery.build")
 @patch(MODULE_NAME + ".Http")
 @patch(MODULE_NAME + ".Storage")
@@ -78,7 +75,6 @@ def test_credentials_flow_success():
 
 
 @pytest.fixture
-@patch(MODULE_NAME + ".expanduser")
 @patch(MODULE_NAME + ".Http")
 @patch(MODULE_NAME + ".DriveStorage._get_credentials")
 @patch(MODULE_NAME + ".discovery.build")

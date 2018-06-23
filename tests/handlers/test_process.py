@@ -8,7 +8,8 @@ MODULE_NAME = "ProjectNephos.handlers.process"
 
 
 def test_default():
-    sh = ProcessHandler("random_subcommand", "random_config")
+    sh = ProcessHandler("random_subcommand")
+    sh.init_with_config("random_config")
 
     assert sh.subcommand == "random_subcommand"
     assert sh.config == "random_config"
@@ -20,7 +21,8 @@ def test_bad_file(isfile):
     args.input_file = "random_input1"
     isfile.return_value = False
 
-    sh = ProcessHandler("random_subcommand", "random_config")
+    sh = ProcessHandler("random_subcommand")
+    sh.init_with_config("random_config")
 
     with pytest.raises(FileNotFound):
         sh.run(args)

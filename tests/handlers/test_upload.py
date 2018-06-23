@@ -9,7 +9,8 @@ MODULE_NAME = "ProjectNephos.handlers.upload"
 @patch(MODULE_NAME + ".DriveStorage")
 def test_default(ds):
     ds.return_value = "random_drive_store"
-    sh = UploadHandler("random_subcommand", "random_config")
+    sh = UploadHandler("random_subcommand")
+    sh.init_with_config("random_config")
 
     assert sh.subcommand == "random_subcommand"
     assert sh.backend == "random_drive_store"
@@ -22,7 +23,8 @@ def default_object(ds):
     backend = MagicMock()
     ds.return_value = backend
 
-    obj = UploadHandler("random", "random")
+    obj = UploadHandler("random")
+    obj.init_with_config("random")
 
     return obj, backend
 
