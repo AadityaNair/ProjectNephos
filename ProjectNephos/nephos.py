@@ -63,7 +63,7 @@ def main():
 
     # We don't want to use config with init. That will actually create a new config or
     # folders from the specified config file
-    if h.subcommand != 'init':
+    if h.subcommand != "init":
         config = Configuration(args.config)
         h.init_with_config(config)
     h.run(args)

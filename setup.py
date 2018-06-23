@@ -30,14 +30,14 @@ requires = [
     "raven",
     "PyYAML",
     "pydash",
-    'sqlalchemy',
-    'arrow',
-    'pytz',
-    'apscheduler',
-    'sqlalchemy_utils',
-    'flask_sqlalchemy',
-    'flask_restful',
-    'coloredlogs',
+    "sqlalchemy",
+    "arrow",
+    "pytz",
+    "apscheduler",
+    "sqlalchemy_utils",
+    "flask_sqlalchemy",
+    "flask_restful",
+    "coloredlogs",
 ]
 
 

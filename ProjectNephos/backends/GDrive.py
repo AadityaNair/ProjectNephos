@@ -12,11 +12,11 @@ from apiclient.errors import HttpError
 
 from httplib2 import Http
 from logging import getLogger
-from configparser import ConfigParser
 
 from oauth2client.clientsecrets import InvalidClientSecretsError
 
 from ProjectNephos.exceptions import OAuthFailure, FileNotFound
+from ProjectNephos.config import Configuration
 
 logger = getLogger(__name__)
 
@@ -102,7 +102,7 @@ class DriveStorage(object):
             store.put(credentials)
         return credentials
 
-    def __init__(self, config: ConfigParser):
+    def __init__(self, config: Configuration):
         """
         Driver code to interact with Google Drive.
         This will try to authorize with your google account before proceeding.

@@ -1,5 +1,10 @@
 from ProjectNephos.backends.GDrive import DriveStorage
-from ProjectNephos.config import Configuration, CONFIG_FULL_PATH_DEFAULT, BASE_FOLDER, default_values
+from ProjectNephos.config import (
+    Configuration,
+    CONFIG_FULL_PATH_DEFAULT,
+    BASE_FOLDER,
+    default_values,
+)
 from ProjectNephos.orchestration import Server
 from argparse import _SubParsersAction, Namespace
 from multiprocessing import Process
@@ -40,7 +45,7 @@ class InitHandler(object):
                 logger.debug("No previous file exists. Creating new one.")
 
                 os.makedirs(expanduser(BASE_FOLDER), exist_ok=True)
-                with open(CONFIG_FULL_PATH_DEFAULT, 'w') as f:
+                with open(CONFIG_FULL_PATH_DEFAULT, "w") as f:
                     c = ConfigParser()
                     c.read_dict(default_values)
                     c.write(f)
