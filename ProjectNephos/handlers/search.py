@@ -1,4 +1,4 @@
-from ProjectNephos.backends.GDrive import DriveStorage
+from ProjectNephos.backends import DriveStorage
 from ProjectNephos.config import Configuration
 
 from argparse import _SubParsersAction, Namespace
