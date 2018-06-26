@@ -7,7 +7,6 @@ from ProjectNephos.config import (
 )
 from ProjectNephos.orchestration import Server
 from argparse import _SubParsersAction, Namespace
-from multiprocessing import Process
 from logging import getLogger
 
 from configparser import ConfigParser
@@ -63,7 +62,4 @@ class InitHandler(object):
         logger.debug("OAuth completed.")
 
         logger.debug("Starting Orchestration.")
-
-        p = Process(target=Server, args=(1, 2, 3))
-        p.start()
-        logger.debug("Orchestration Started")
+        Server().run_server()
