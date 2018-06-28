@@ -4,12 +4,13 @@ import argparse
 import logging
 
 from ProjectNephos.config import Configuration, CONFIG_FULL_PATH_DEFAULT
+
 from ProjectNephos.handlers.upload import UploadHandler
 from ProjectNephos.handlers.search import SearchHandler
 from ProjectNephos.handlers.tag import TagHandler
 from ProjectNephos.handlers.process import ProcessHandler
 from ProjectNephos.handlers.init import InitHandler
-
+from ProjectNephos.handlers.permissions import PermissionHandler
 
 ActionHandlers = [
     UploadHandler("upload"),
@@ -17,6 +18,7 @@ ActionHandlers = [
     TagHandler("tag"),
     ProcessHandler("process"),
     InitHandler("init"),
+    PermissionHandler("permission"),
 ]
 
 
