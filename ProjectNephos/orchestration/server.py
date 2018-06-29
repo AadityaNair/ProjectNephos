@@ -57,7 +57,7 @@ class Server(object):
             logger.critical("Job {}: FAILED".format(event.job_id))
         else:
             logger.critical(
-                "Job {}: SUCCEEDED with return value ".format(
+                "Job {}: SUCCEEDED with return value {}".format(
                     event.job_id, event.retval
                 )
             )
