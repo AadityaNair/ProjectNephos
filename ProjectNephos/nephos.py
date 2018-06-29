@@ -11,6 +11,7 @@ from ProjectNephos.handlers.tag import TagHandler
 from ProjectNephos.handlers.process import ProcessHandler
 from ProjectNephos.handlers.init import InitHandler
 from ProjectNephos.handlers.permissions import PermissionHandler
+from ProjectNephos.handlers.channels import ChannelHandler
 
 ActionHandlers = [
     UploadHandler("upload"),
@@ -19,6 +20,7 @@ ActionHandlers = [
     ProcessHandler("process"),
     InitHandler("init"),
     PermissionHandler("permission"),
+    ChannelHandler("channel"),
 ]
 
 

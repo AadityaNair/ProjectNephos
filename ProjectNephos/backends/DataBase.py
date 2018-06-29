@@ -18,6 +18,7 @@ class Channel(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(1200), unique=True, nullable=False)
     ip_string = Column(String(128))
+
     meta_teletext_page = Column(String(128))
     meta_country_code = Column(String(16))
     meta_language_code = Column(String(16))
@@ -106,3 +107,21 @@ class DBStorage(object):
         """
         response = self.session.query(Permission).order_by(Permission.tag)
         return [(x.tag, x.email, x.role) for x in response]
+
+    def add_channel(self, name: str, ip: str):
+        """
+        Add a new channel to record. Currently not using most of the columns
+        mentioned in Channel
+
+        Takes:
+            name of the channel.
+            IP of the channel
+        """
+
+        entry = Channel(name=name, ip_string=ip)
+        self.session.add(entry)
+        self.session.commit()
+
+    def get_channels(self) -> List[Tuple[str, str]]:
+        response = self.session.query(Channel).order_by(Channel.name)
+        return [(x.name, x.ip_string) for x in response]
