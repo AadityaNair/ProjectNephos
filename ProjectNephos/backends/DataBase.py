@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, ForeignKey, Boolean, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import sessionmaker, validates
@@ -15,8 +16,7 @@ class Channel(Base):
     """
     __tablename__ = "channel"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(1200), unique=True, nullable=False)
+    name = Column(String(1200), primary_key=True, nullable=False)
     ip_string = Column(String(128))
 
     meta_teletext_page = Column(String(128))
@@ -27,6 +27,25 @@ class Channel(Base):
 
     def __repr__(self):
         return "<Channel (Name: {}, IP: {})>".format(self.name, self.ip_string)
+
+
+class Job(Base):
+    """
+    Define jobs for each channel.
+    This does not use the old conventions.
+    """
+    __tablename__ = "job"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(1200), unique=True, nullable=False)
+    channel = Column(String, ForeignKey("channel.name"))
+
+    start = Column(String(16))
+    duration = Column(Integer)
+
+    convert_to = Column(String(8))
+    upload = Column(Boolean)
+    tags = Column(String(1200))
 
 
 class Permission(Base):
@@ -60,11 +79,28 @@ class DBStorage(object):
 
         db_file = "sqlite:///" + config["recording", "db_location"]
         self.engine = create_engine(db_file)
+
+        self.engine.execute("pragma foreign_keys=ON;")
+
         Base.metadata.create_all(self.engine)
 
         Session = sessionmaker()
         Session.configure(bind=self.engine)
         self.session = Session()
+
+    @staticmethod
+    @event.listens_for(Engine, "connect")
+    def _set_sqlite_pragma(dbapi_connection, _):
+        """
+        This is needed because SQLite by default doesn't enforce
+        FOREIGN KEY Constraints. This enables them for every query.
+
+        Ref:
+            http://docs.sqlalchemy.org/en/latest/dialects/sqlite.html#foreign-key-support
+        """
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
     def add_permissions(
         self, tags: List[str], email: str, role: str = "reader"
@@ -125,3 +161,29 @@ class DBStorage(object):
     def get_channels(self) -> List[Tuple[str, str]]:
         response = self.session.query(Channel).order_by(Channel.name)
         return [(x.name, x.ip_string) for x in response]
+
+    def add_job(
+        self,
+        name: str,
+        channel: str,
+        start: str,
+        duration: int,
+        upload: bool,
+        convert_to: str,
+        tags: List[str],
+    ):
+        if tags:
+            tagstring = ",".join(tags)
+        else:
+            tagstring = None
+        entry = Job(
+            name=name,
+            channel=channel,
+            start=start,
+            duration=duration,
+            upload=upload,
+            convert_to=convert_to,
+            tags=tagstring,
+        )
+        self.session.add(entry)
+        self.session.commit()
