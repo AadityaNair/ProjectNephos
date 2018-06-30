@@ -62,4 +62,4 @@ class InitHandler(object):
         logger.debug("OAuth completed.")
 
         logger.debug("Starting Orchestration.")
-        Server().run_server()
+        Server(self.config).run_server()

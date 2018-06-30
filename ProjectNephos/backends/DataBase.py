@@ -68,6 +68,41 @@ class Permission(Base):
         return role
 
 
+class Download(Base):
+    """
+    Update this table whenever a download completes.
+    This is associated with a job name. It retrieves metadata
+    from the job.
+    """
+    __tablename__ = "downloads"
+
+    id = Column(Integer, primary_key=True)
+    filename = Column(String, nullable=False)  # Full path to the filename
+    jobname = Column(String, ForeignKey("job.name"))  # Associated Job
+
+    def __repr__(self):
+        return "<Download: {} ## {}>".format(self.filename, self.jobname)
+
+
+class Task(Base):
+    """
+    List of all tasks to be performed.
+    All orchestration functions query this table to
+    determine what to do.
+    """
+    __tablename__ = "tasks"
+
+    id = Column(Integer, primary_key=True)
+    action = Column(String, nullable=False)
+    filename = Column(String)
+    action_info = Column(String, nullable=True)
+
+    @validates("action")
+    def valid_action(self, _, action):
+        assert action in ["upload", "process", "tag"]
+        return action
+
+
 class DBStorage(object):
     """
     This class encompasses all our interactions with the database.
@@ -185,5 +220,35 @@ class DBStorage(object):
             convert_to=convert_to,
             tags=tagstring,
         )
+        self.session.add(entry)
+        self.session.commit()
+
+    def push_task(self, action: str, filename: str, action_info: str = None):
+        entry = Task(action=action, filename=filename, action_info=action_info)
+        self.session.add(entry)
+        self.session.commit()
+
+    def pop_task(self):
+        return self.session.query(Task).first()
+
+    def pop_download(self):
+        item = self.session.query(Download).first()
+        if item is None:
+            return None
+        else:
+            self.session.delete(item)
+            self.session.commit()
+            return item
+
+    def _add_filename(self, filename, jobname):
+        """
+        Helper method to add files to Download table.
+        This is for testing purposes only. IN production,
+        this will be done by the recording module.
+        :param filename:
+        :param jobname:
+        :return:
+        """
+        entry = Download(filename=filename, jobname=jobname)
         self.session.add(entry)
         self.session.commit()
