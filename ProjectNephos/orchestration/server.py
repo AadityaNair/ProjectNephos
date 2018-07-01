@@ -1,4 +1,4 @@
-from ProjectNephos.orchestration.tasks import add_task
+from ProjectNephos.orchestration.tasks import run_job
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.executors.pool import ProcessPoolExecutor
@@ -26,7 +26,7 @@ class Server(object):
     The core of this server is a scheduler(APScheduler). It makes sure that jobs(functions)
     run at the specified REFRESH_TIMER. Event listeners are put in place to react to failures/successes.
     """
-    JOB_LIST = [add_task]
+    JOB_LIST = [run_job]
     REFRESH_TIMER = 5
 
     def __init__(self, config):
@@ -40,7 +40,7 @@ class Server(object):
             executor=ProcessPoolExecutor(5),
             job_defaults={
                 "coalesce": True,  # Combine multiple waiting instances of the same job into one.
-                "max_instances": 2,  # Total number of concurrent instances for the sam job. Change to 1 for upload.
+                "max_instances": 1,  # Total number of concurrent instances for the sam job. Change to 1 for upload.
             },
         )
 
