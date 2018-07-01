@@ -46,8 +46,8 @@ class TagHandler(object):
             help="add the provided tags to the search results",
         )
 
-    def execute_command(self):
-        pass
+    def execute_command(self, fileId, tags):
+        self.backend.tag(fileId, tags)
 
     def run(self, args: Namespace):
         logger.debug(args)

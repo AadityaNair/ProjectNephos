@@ -25,6 +25,9 @@ class UploadHandler(object):
         self.config = config
         self.backend = DriveStorage(config)
 
+    def execute_command(self, filepath):
+        return self.backend.write(filepath)
+
     def run(self, args: Namespace):
         if not args.ignore_errors:
             bad_items = filter(lambda x: not path.isfile(x), args.files)

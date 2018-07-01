@@ -45,3 +45,9 @@ class ProcessHandler(object):
             inputs={args.input_file: None}, outputs={args.output_file: None}
         )
         ff.run()
+
+    def execute_command(self, input_file, output_file):
+        ff = ffmpy.FFmpeg(
+                inputs={input_file: None}, outputs={output_file: None}
+        )
+        ff.run()
