@@ -1,15 +1,16 @@
-from ProjectNephos.config import Configuration
 from ProjectNephos.exceptions import FileNotFound
+from ProjectNephos.handlers.base import BaseHandler
 
 from argparse import _SubParsersAction, Namespace
 from logging import getLogger
 from os.path import isfile
 import ffmpy
 
+
 logger = getLogger(__name__)
 
 
-class ProcessHandler(object):
+class ProcessHandler(BaseHandler):
     """
     This class handles conversion of downloaded data. The recorded data will most likely
     be compressed to save space. The only functionality this class provides as of now is to
@@ -20,14 +21,8 @@ class ProcessHandler(object):
     sure to name it correctly
     """
 
-    def __init__(self, subcommand: str):
-        self.subcommand = subcommand
-
-    def init_with_config(self, config: Configuration):
-        self.config = config
-
     def init_args(self, subparser: _SubParsersAction):
-        parser = subparser.add_parser(self.subcommand)
+        parser = super().init_args(subparser)
 
         parser.add_argument(
             "input_file", action="store", help="The file that has to be transformed"
@@ -47,7 +42,5 @@ class ProcessHandler(object):
         ff.run()
 
     def execute_command(self, input_file, output_file):
-        ff = ffmpy.FFmpeg(
-                inputs={input_file: None}, outputs={output_file: None}
-        )
+        ff = ffmpy.FFmpeg(inputs={input_file: None}, outputs={output_file: None})
         ff.run()

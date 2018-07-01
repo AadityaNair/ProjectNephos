@@ -3,24 +3,24 @@ from logging import getLogger
 
 from ProjectNephos.config import Configuration
 from ProjectNephos.backends import DBStorage
+from ProjectNephos.handlers.base import BaseHandler
 
 logger = getLogger(__name__)
 
 
-class ChannelHandler(object):
+class ChannelHandler(BaseHandler):
     """
     Handles creating channels.
     """
 
-    def __init__(self, subcommand):
-        self.subcommand = subcommand
-
     def init_with_config(self, config: Configuration):
-        self.config = config
+        super().init_with_config(config)
+
         self.db = DBStorage(config)
 
     def init_args(self, subparser: _SubParsersAction):
-        parser = subparser.add_parser(self.subcommand)
+        parser = super().init_args(subparser)
+
         parser.add_argument(
             "action", help="Define what action to take.", choices=["list", "add"]
         )
@@ -35,9 +35,6 @@ class ChannelHandler(object):
         )
         parser.add_argument("--language", action="store", help="Language of the stream")
         parser.add_argument("--source", action="store", help="Source of the video.")
-
-    def execute_command(self):
-        pass
 
     def run(self, args: Namespace):
         if args.action == "add":

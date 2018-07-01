@@ -5,6 +5,7 @@ from ProjectNephos.config import (
     BASE_FOLDER,
     default_values,
 )
+from ProjectNephos.handlers.base import BaseHandler
 from ProjectNephos.orchestration import Server
 from argparse import _SubParsersAction, Namespace
 from logging import getLogger
@@ -16,7 +17,7 @@ import os
 logger = getLogger(__name__)
 
 
-class InitHandler(object):
+class InitHandler(BaseHandler):
     """
     Handles startup of the project. This probably needs to be run just once.
     This performs the following tasks:
@@ -24,18 +25,10 @@ class InitHandler(object):
         2.  Performs OAuth with google.
         3.  Starts an orchestration server that ensures that the recorder is always running.
             and other stuff not currently decided.
+    TODO: Passing config to this handler should override create config option.
 
-    NOTE: 1 and 2 are being handled separately as of now. They will be moved here later.
+    NOTE: 2 is being handled separately as of now. It will be moved here later.
     """
-
-    def __init__(self, subcommand: str):
-        self.subcommand = subcommand
-
-    def init_with_config(self, config: Configuration):
-        raise NotImplementedError
-
-    def init_args(self, subparser: _SubParsersAction):
-        subparser.add_parser(self.subcommand)
 
     def _create_config(self, config_path):
         if config_path == CONFIG_FULL_PATH_DEFAULT:

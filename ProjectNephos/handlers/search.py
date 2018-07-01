@@ -1,13 +1,15 @@
 from ProjectNephos.backends import DriveStorage
 from ProjectNephos.config import Configuration
+from ProjectNephos.handlers.base import BaseHandler
 
 from argparse import _SubParsersAction, Namespace
 from logging import getLogger
 
+
 logger = getLogger(__name__)
 
 
-class SearchHandler(object):
+class SearchHandler(BaseHandler):
     """
     This class does the searching. You provide it with search parameters and
     it find all matching files and their corresponding ids.
@@ -26,15 +28,14 @@ class SearchHandler(object):
      More fine-grained controls will be added later.
     """
 
-    def __init__(self, subcommand: str):
-        self.subcommand = subcommand
-
     def init_with_config(self, config: Configuration):
-        self.config = config
+        super().init_with_config(config)
+
         self.backend = DriveStorage(config)
 
     def init_args(self, subparser: _SubParsersAction) -> None:
-        parser = subparser.add_parser(self.subcommand)
+        parser = super().init_args(subparser)
+
         parser.add_argument("--name", action="store", help="Search for a name")
         parser.add_argument(
             "--tags", action="store", nargs="*", help="Tags you want to search for"

@@ -1,5 +1,6 @@
 from ProjectNephos.backends import DriveStorage, DBStorage
 from ProjectNephos.config import Configuration
+from ProjectNephos.handlers.base import BaseHandler
 from ProjectNephos.handlers.search import SearchHandler
 
 from argparse import _SubParsersAction, Namespace
@@ -8,7 +9,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 
-class PermissionHandler(object):
+class PermissionHandler(BaseHandler):
     """
     This class handles adding permissions to uploaded files.
 
@@ -19,19 +20,16 @@ class PermissionHandler(object):
     NOTE: Mechanism to tag file while uploading has not yet been implemented.
     """
 
-    def __init__(self, subcommand: str):
-        self.subcommand = subcommand
-
     def init_with_config(self, config: Configuration):
-        self.config = config
+        super().init_with_config(config)
+
         self.backend = DriveStorage(config)
         self.db = DBStorage(config)
-
-        self.search = SearchHandler("search")
-        self.search.init_with_config(config)
+        self.search = SearchHandler(config=config)
 
     def init_args(self, subparser: _SubParsersAction) -> None:
-        parser = subparser.add_parser(self.subcommand)
+        parser = super().init_args(subparser)
+
         parser.add_argument(
             "action", help="Define what action to take.", choices=["list", "add"]
         )

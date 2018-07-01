@@ -8,3 +8,7 @@ class OAuthFailure(NephosException):
 
 class FileNotFound(NephosException):
     pass
+
+
+class SubCommandNotFound(NephosException):
+    pass

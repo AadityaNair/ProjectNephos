@@ -1,5 +1,6 @@
 from ProjectNephos.backends import DriveStorage
 from ProjectNephos.config import Configuration
+from ProjectNephos.handlers.base import BaseHandler
 from ProjectNephos.handlers.search import SearchHandler
 
 from argparse import _SubParsersAction, Namespace
@@ -8,7 +9,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 
-class TagHandler(object):
+class TagHandler(BaseHandler):
     """
     This class is used to tag *uploaded* files. Tags currently are just strings
     that are added in the file's description field.
@@ -21,18 +22,15 @@ class TagHandler(object):
     NOTE: Mechanism to tag file while uploading has not yet been implemented.
     """
 
-    def __init__(self, subcommand: str):
-        self.subcommand = subcommand
-
     def init_with_config(self, config: Configuration):
-        self.config = config
-        self.backend = DriveStorage(config)
+        super().init_with_config(config)
 
-        self.search = SearchHandler("search")
-        self.search.init_with_config(config)
+        self.backend = DriveStorage(config)
+        self.search = SearchHandler(config=config)
 
     def init_args(self, subparser: _SubParsersAction) -> None:
-        parser = subparser.add_parser(self.subcommand)
+        parser = super().init_args(subparser)
+
         parser.add_argument(
             "--for_name",
             action="store",
