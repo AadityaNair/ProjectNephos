@@ -71,7 +71,7 @@ class PermissionHandler(BaseHandler):
 
         if args.action == "list":
             if args.for_tags is None:
-                print(self.db.get_all_permissions())
+                print(self.db.get_permissions())
             else:
                 for tag in args.for_tags:
-                    print(self.db.get_permissions_from_tag(tag))
+                    print(self.db.get_permissions(tag))

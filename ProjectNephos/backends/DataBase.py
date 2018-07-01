@@ -143,26 +143,17 @@ class DBStorage(object):
             self.session.add(entry)
         self.session.commit()
 
-    def get_permissions_from_tag(self, tag: str) -> List[Tuple[str, str]]:
-        """
-        Get all the users that should be able to access the provided tag.
-
-        Takes:
-            A tag.
-        Returns:
-            A list with (email, role) tuples
-        """
-        response = self.session.query(Permission).filter(Permission.tag == tag)
-        return [(x.email, x.role) for x in response]
-
-    def get_all_permissions(self) -> List[Tuple[str, str, str]]:
+    def get_permissions(self, tag: str = None) -> List[Tuple[str, str, str]]:
         """
         Same as get_permission_from_tag but without any filtering.
 
         Returns:
              A list with (tag, email, role) tuples ordered by tag
         """
-        response = self.session.query(Permission).order_by(Permission.tag)
+        if tag is None:
+            response = self.session.query(Permission).order_by(Permission.tag)
+        else:
+            response = self.session.query(Permission).filter(Permission.tag == tag)
         return [(x.tag, x.email, x.role) for x in response]
 
     def add_channel(self, name: str, ip: str):
