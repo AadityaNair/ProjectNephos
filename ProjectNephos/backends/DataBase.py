@@ -47,6 +47,11 @@ class Job(Base):
     upload = Column(Boolean)
     tags = Column(String(1200))
 
+    def __repr__(self):
+        return "<Job: namne={}, channel={}, convert_to={}, upload={}, tags={}>".format(
+            self.name, self.channel, self.convert_to, self.upload, self.tags
+        )
+
 
 class Permission(Base):
     """
@@ -82,25 +87,6 @@ class Download(Base):
 
     def __repr__(self):
         return "<Download: {} ## {}>".format(self.filename, self.jobname)
-
-
-class Task(Base):
-    """
-    List of all tasks to be performed.
-    All orchestration functions query this table to
-    determine what to do.
-    """
-    __tablename__ = "tasks"
-
-    id = Column(Integer, primary_key=True)
-    action = Column(String, nullable=False)
-    filename = Column(String)
-    action_info = Column(String, nullable=True)
-
-    @validates("action")
-    def valid_action(self, _, action):
-        assert action in ["upload", "process", "tag"]
-        return action
 
 
 class DBStorage(object):
@@ -223,13 +209,8 @@ class DBStorage(object):
         self.session.add(entry)
         self.session.commit()
 
-    def push_task(self, action: str, filename: str, action_info: str = None):
-        entry = Task(action=action, filename=filename, action_info=action_info)
-        self.session.add(entry)
-        self.session.commit()
-
-    def pop_task(self):
-        return self.session.query(Task).first()
+    def get_job(self, jobname):
+        return self.session.query(Job).filter(Job.name == jobname).first()
 
     def pop_download(self):
         item = self.session.query(Download).first()
