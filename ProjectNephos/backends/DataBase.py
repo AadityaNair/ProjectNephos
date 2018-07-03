@@ -170,8 +170,11 @@ class DBStorage(object):
         self.session.add(entry)
         self.session.commit()
 
-    def get_channels(self) -> List[Tuple[str, str]]:
-        response = self.session.query(Channel).order_by(Channel.name)
+    def get_channels(self, name: str = None) -> List[Tuple[str, str]]:
+        if name is None:
+            response = self.session.query(Channel).order_by(Channel.name)
+        else:
+            response = self.session.query(Channel).filter(Channel.name == name)
         return [(x.name, x.ip_string) for x in response]
 
     def add_job(
@@ -200,8 +203,11 @@ class DBStorage(object):
         self.session.add(entry)
         self.session.commit()
 
-    def get_job(self, jobname):
-        return self.session.query(Job).filter(Job.name == jobname).first()
+    def get_job(self, jobname: str = None):
+        if jobname is None:
+            return self.session.query(Job).all()
+        else:
+            return self.session.query(Job).filter(Job.name == jobname).first()
 
     def pop_download(self):
         item = self.session.query(Download).first()

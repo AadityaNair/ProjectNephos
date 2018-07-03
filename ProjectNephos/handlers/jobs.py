@@ -3,11 +3,12 @@ from logging import getLogger
 
 from ProjectNephos.backends import DBStorage
 from ProjectNephos.config import Configuration
+from ProjectNephos.handlers.base import BaseHandler
 
 logger = getLogger(__name__)
 
 
-class JobHandler(object):
+class JobHandler(BaseHandler):
     """
     Handles creating new jobs. Each job is defined, at minimum, by the channel name,
     start time of the job, and the duration of the recording.
@@ -24,24 +25,26 @@ class JobHandler(object):
     not be performed.
     """
 
-    def __init__(self, subcommand):
-        self.subcommand = subcommand
-
     def init_with_config(self, config: Configuration):
-        self.config = config
+        super().init_with_config(config)
+
         self.db = DBStorage(config)
 
     def init_args(self, subparser: _SubParsersAction):
-        parser = subparser.add_parser(self.subcommand)
-
-        parser.add_argument("channel", action="store", help="Name of the channel")
-        parser.add_argument("name", action="store", help="Name of the program")
+        parser = super().init_args(subparser)
 
         parser.add_argument(
-            "start", action="store", help="Start time of the job in cron format"
+            "action", help="Define what action to take.", choices=["list", "add"]
+        )
+
+        parser.add_argument("--channel", action="store", help="Name of the channel")
+        parser.add_argument("--name", action="store", help="Name of the program")
+
+        parser.add_argument(
+            "--start", action="store", help="Start time of the job in cron format"
         )
         parser.add_argument(
-            "duration",
+            "--duration",
             action="store",
             help="How long do you want to record. In minutes",
             type=int,
@@ -64,16 +67,35 @@ class JobHandler(object):
             help="Start time of the job in cron format",
         )
 
-    def execute_command(self):
-        pass
-
     def run(self, args: Namespace):
-        self.db.add_job(
-            args.name,
-            args.channel,
-            args.start,
-            args.duration,
-            args.upload,
-            args.convert_to,
-            args.tags,
-        )
+        if args.action == "add":
+            if not all([args.channel, args.name, args.start, args.duration]):
+                logger.critical(
+                    "All of the following options are required: --channel, --name, --start, --duration"
+                )
+                return -1
+
+            if len(self.db.get_channels(name=args.channel)) == 0:
+                logger.critical(
+                    "Provided channel name does not exist. Please provide a correct one."
+                )
+                return -1
+            if self.db.get_job(jobname=args.name) is not None:
+                logger.critical(
+                    "There is already a job by that name. Choose a different name."
+                )
+                return -1
+
+            self.db.add_job(
+                args.name,
+                args.channel,
+                args.start,
+                args.duration,
+                args.upload,
+                args.convert_to,
+                args.tags,
+            )
+
+        if args.action == "list":
+            for items in self.db.get_job():
+                print(items)
