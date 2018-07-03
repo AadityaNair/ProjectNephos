@@ -25,18 +25,11 @@ requires = [
     "google-api-python-client",
     "oauth2client",
     "ffmpy",
-    "python-dotenv",
-    "blinker",
-    "raven",
     "PyYAML",
     "pydash",
     "sqlalchemy",
-    "arrow",
     "pytz",
     "apscheduler",
-    "sqlalchemy_utils",
-    "flask_sqlalchemy",
-    "flask_restful",
     "coloredlogs",
 ]
 
