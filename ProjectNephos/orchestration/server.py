@@ -1,9 +1,10 @@
-from ProjectNephos.orchestration.tasks import run_job
-
+from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.executors.pool import ProcessPoolExecutor
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
+
+from ProjectNephos.orchestration.tasks import run_job
 
 from logging import getLogger
 
@@ -16,7 +17,7 @@ class Server(object):
     seconds and perform tasks. Each task is assumed to follow these guidelines:
         * Available in the JOB_LIST variable.
         * Independent from any other function in the list.
-        * Takes config as the only argument (as of now).
+        * Takes the scheduler and config as the only argument (as of now).
         * Raises anything when it fails.
         * Raises nothing for a successful run.
 
@@ -35,7 +36,7 @@ class Server(object):
         self.running_jobs = []
         logger.debug("Starting Orchestration.")
 
-        self.sched = BlockingScheduler(
+        self.sched = BackgroundScheduler(
             jobstore=MemoryJobStore(),
             executor=ProcessPoolExecutor(5),
             job_defaults={
@@ -58,7 +59,7 @@ class Server(object):
     def run_server(self):
         for item in self.jobs:
             j = self.sched.add_job(
-                item, args=[self.config], trigger="interval", seconds=self.REFRESH_TIMER
+                item, args=[self.sched, self.config], trigger="interval", seconds=self.REFRESH_TIMER
             )
             logger.critical("Added job {}: {}".format(j.id, j.func))
 

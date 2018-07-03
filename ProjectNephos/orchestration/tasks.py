@@ -50,7 +50,7 @@ def tag_job(fileid, tagstring, config):
         t.execute_command(fileid, taglist)
 
 
-def run_job(config):
+def run_job(_, config):
     db = DBStorage(config)
     download = db.pop_download()
     if download is None:
