@@ -57,7 +57,6 @@ class SearchHandler(BaseHandler):
         return [(name, fid) for name, fid in response]
 
     def run(self, args: Namespace):
-        logger.debug(args)
         if not args.name and not args.tags:
             logger.critical(
                 "Neither name or tags specified. Atleast one is required. Exiting"

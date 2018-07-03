@@ -60,6 +60,9 @@ def main():
     else:
         logging.basicConfig()
 
+    logger = logging.getLogger(__name__)
+    logger.debug("The following args were found {}".format(args))
+
     if args.subc is None:
         parser.print_help()
         exit(0)

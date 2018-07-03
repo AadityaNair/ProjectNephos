@@ -48,7 +48,6 @@ class TagHandler(BaseHandler):
         self.backend.tag(fileId, tags)
 
     def run(self, args: Namespace):
-        logger.debug(args)
 
         relevant_files = self.search.execute_command(
             name=args.for_name, tags=None, do_and=False
