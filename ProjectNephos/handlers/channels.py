@@ -28,13 +28,13 @@ class ChannelHandler(BaseHandler):
         parser.add_argument("--name", action="store", help="Name of the channel")
         parser.add_argument("--ip", action="store", help="IP Address of the channel")
 
-        parser.add_argument("--teletext", action="store", help="Teletext Page")
-        parser.add_argument("--country", action="store", help="Country Code")
-        parser.add_argument(
-            "--timezome", action="store", help="Timezone of the channel"
-        )
-        parser.add_argument("--language", action="store", help="Language of the stream")
-        parser.add_argument("--source", action="store", help="Source of the video.")
+        # parser.add_argument("--teletext", action="store", help="Teletext Page")
+        # parser.add_argument("--country", action="store", help="Country Code")
+        # parser.add_argument(
+        #     "--timezome", action="store", help="Timezone of the channel"
+        # )
+        # parser.add_argument("--language", action="store", help="Language of the stream")
+        # parser.add_argument("--source", action="store", help="Source of the video.")
 
     def run(self, args: Namespace):
         if args.action == "add":

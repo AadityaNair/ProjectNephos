@@ -19,11 +19,11 @@ class Channel(Base):
     name = Column(String(1200), primary_key=True, nullable=False)
     ip_string = Column(String(128))
 
-    meta_teletext_page = Column(String(128))
-    meta_country_code = Column(String(16))
-    meta_language_code = Column(String(16))
-    meta_timezone = Column(String(128))
-    meta_video_source = Column(String(1200))
+    # meta_teletext_page = Column(String(128))
+    # meta_country_code = Column(String(16))
+    # meta_language_code = Column(String(16))
+    # meta_timezone = Column(String(128))
+    # meta_video_source = Column(String(1200))
 
     def __repr__(self):
         return "<Channel (Name: {}, IP: {})>".format(self.name, self.ip_string)
@@ -46,6 +46,10 @@ class Job(Base):
     convert_to = Column(String(8))
     upload = Column(Boolean)
     tags = Column(String(1200))
+
+    # True if the jobs are already scheduled. False if they need to be scheduled.
+    # Note that this field is ignored during the first run of the scheduler.
+    in_execution = Column(Boolean)
 
     def __repr__(self):
         return "<Job: namne={}, channel={}, convert_to={}, upload={}, tags={}>".format(
