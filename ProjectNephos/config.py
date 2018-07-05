@@ -17,7 +17,12 @@ default_values = {
         "local_save_location": BASE_FOLDER + "/files/",
         "temp_save_location": BASE_FOLDER + "/temp_files/",
     },
-    "recording": {"driver": "sqlite", "db_location": BASE_FOLDER + "/nephos.sqlite"},
+    "recording": {
+        "driver": "sqlite",
+        "db_location": BASE_FOLDER + "/nephos.sqlite",
+        "multicat": "/usr/bin/multicat",
+        "bind": "159.237.36.240",
+    },
     "web": {"host": "0.0.0.0", "port": "5000"},
     "mail": {
         "smtp_port": "465",
