@@ -37,7 +37,7 @@ class Server(object):
         self.db = DBStorage(config)
 
         self.jobs = self.JOB_LIST
-        self.running_jobs = []
+
         logger.debug("Starting Orchestration.")
 
         self.sched = BlockingScheduler(
@@ -67,7 +67,7 @@ class Server(object):
 
             j = self.sched.add_job(
                 record_video,
-                args=[job, self.config, self.db],
+                args=[job, self.config],
                 trigger="cron",
                 minute=cron[0],
                 hour=cron[1],
