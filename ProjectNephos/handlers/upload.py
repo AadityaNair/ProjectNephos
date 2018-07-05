@@ -17,12 +17,12 @@ class UploadHandler(BaseHandler):
     files based on the --ignore-errors argument.
     """
 
-    def init_with_config(self, config: Configuration):
+    def init_with_config(self, config):
         super().init_with_config(config)
 
         self.backend = DriveStorage(config)
 
-    def init_args(self, subparser: _SubParsersAction) -> None:
+    def init_args(self, subparser):
         parser = super().init_args(subparser)
 
         parser.add_argument("files", nargs="+", help="Files you want to upload.")
@@ -30,7 +30,7 @@ class UploadHandler(BaseHandler):
     def execute_command(self, filepath):
         return self.backend.write(filepath)
 
-    def run(self, args: Namespace):
+    def run(self, args):
         if not args.ignore_errors:
             bad_items = filter(lambda x: not path.isfile(x), args.files)
             if len(list(bad_items)) != 0:

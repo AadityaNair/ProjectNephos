@@ -54,7 +54,7 @@ class Configuration(object):
         Config object
     """
 
-    def __init__(self, config_path: str = None):
+    def __init__(self, config_path = None):
         c = ConfigParser()
 
         # Load the default values first.

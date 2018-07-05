@@ -45,7 +45,7 @@ class InitHandler(BaseHandler):
 
         self.config = Configuration(CONFIG_FULL_PATH_DEFAULT)
 
-    def run(self, args: Namespace):
+    def run(self, args):
         logger.debug("Starting initial run.")
 
         self._create_config(args.config)

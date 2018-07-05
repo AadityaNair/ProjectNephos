@@ -25,12 +25,12 @@ class JobHandler(BaseHandler):
     not be performed.
     """
 
-    def init_with_config(self, config: Configuration):
+    def init_with_config(self, config):
         super().init_with_config(config)
 
         self.db = DBStorage(config)
 
-    def init_args(self, subparser: _SubParsersAction):
+    def init_args(self, subparser):
         parser = super().init_args(subparser)
 
         parser.add_argument(
@@ -67,7 +67,7 @@ class JobHandler(BaseHandler):
             help="Start time of the job in cron format",
         )
 
-    def run(self, args: Namespace):
+    def run(self, args):
         if args.action == "add":
             if not all([args.channel, args.name, args.start, args.duration]):
                 logger.critical(

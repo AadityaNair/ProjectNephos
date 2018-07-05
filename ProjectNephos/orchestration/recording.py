@@ -8,7 +8,7 @@ from ProjectNephos.config import Configuration
 logger = getLogger(__name__)
 
 
-def record_video(job: Job, config: Configuration, db: DBStorage):
+def record_video(job, config, db):
     base_path = config["downloads", "local_save_location"]
     full_path = (
         base_path + job.name + str(datetime.now().strftime("%Y-%m-%d_%H%M")) + ".ts"

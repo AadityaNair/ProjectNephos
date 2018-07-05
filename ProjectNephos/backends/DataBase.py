@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from sqlalchemy import create_engine, ForeignKey, Boolean, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -127,9 +125,7 @@ class DBStorage(object):
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
 
-    def add_permissions(
-        self, tags: List[str], email: str, role: str = "reader"
-    ) -> None:
+    def add_permissions(self, tags, email, role="reader"):
         """
         Store permissions. Permissions are of the form of (tag, mail, role) tuple.
         This means that all files uploaded with `tag` will be shared with `mail` and
@@ -147,7 +143,7 @@ class DBStorage(object):
             self.session.add(entry)
         self.session.commit()
 
-    def get_permissions(self, tag: str = None) -> List[Tuple[str, str, str]]:
+    def get_permissions(self, tag=None):
         """
         Same as get_permission_from_tag but without any filtering.
 
@@ -160,7 +156,7 @@ class DBStorage(object):
             response = self.session.query(Permission).filter(Permission.tag == tag)
         return [(x.tag, x.email, x.role) for x in response]
 
-    def add_channel(self, name: str, ip: str):
+    def add_channel(self, name, ip):
         """
         Add a new channel to record. Currently not using most of the columns
         mentioned in Channel
@@ -174,23 +170,14 @@ class DBStorage(object):
         self.session.add(entry)
         self.session.commit()
 
-    def get_channels(self, name: str = None) -> List[Tuple[str, str]]:
+    def get_channels(self, name=None):
         if name is None:
             response = self.session.query(Channel).order_by(Channel.name)
         else:
             response = self.session.query(Channel).filter(Channel.name == name)
         return [(x.name, x.ip_string) for x in response]
 
-    def add_job(
-        self,
-        name: str,
-        channel: str,
-        start: str,
-        duration: int,
-        upload: bool,
-        convert_to: str,
-        tags: List[str],
-    ):
+    def add_job(self, name, channel, start, duration, upload, convert_to, tags):
         if tags:
             tagstring = ",".join(tags)
         else:
@@ -207,7 +194,7 @@ class DBStorage(object):
         self.session.add(entry)
         self.session.commit()
 
-    def get_job(self, jobname: str = None):
+    def get_job(self, jobname=None):
         if jobname is None:
             return self.session.query(Job).all()
         else:

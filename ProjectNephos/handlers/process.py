@@ -21,7 +21,7 @@ class ProcessHandler(BaseHandler):
     sure to name it correctly
     """
 
-    def init_args(self, subparser: _SubParsersAction):
+    def init_args(self, subparser):
         parser = super().init_args(subparser)
 
         parser.add_argument(
@@ -31,7 +31,7 @@ class ProcessHandler(BaseHandler):
             "output_file", action="store", help="Final form of the file."
         )
 
-    def run(self, args: Namespace):
+    def run(self, args):
         if not isfile(args.input_file):
             logger.critical("Input file does not exist. Exiting")
             raise FileNotFound("Unable to find file.")

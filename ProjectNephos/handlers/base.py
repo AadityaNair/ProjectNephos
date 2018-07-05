@@ -15,7 +15,7 @@ class BaseHandler(object):
     functions are defined here.
     """
 
-    def __init__(self, subcommand: str = None, config: Configuration = None):
+    def __init__(self, subcommand=None, config=None):
         """
         Initialise the handler. This generally takes the subcommand name when calling
         nephos from the command line. Config can also be provided in which case it will
@@ -38,7 +38,7 @@ class BaseHandler(object):
             )
         self.config = config
 
-    def init_args(self, subparser: _SubParsersAction):
+    def init_args(self, subparser):
         """
         This command takes the subparser from the calling code and initialises the
         command line arguments for this function. This function will not be called when
@@ -58,7 +58,7 @@ class BaseHandler(object):
         """
         raise NotImplementedError
 
-    def run(self, args: Namespace):
+    def run(self, args):
         """
         This command is only used in the case of command line invocation. This will recieve
         the parsed command-line arguments and perform logic on them. For the most part, it

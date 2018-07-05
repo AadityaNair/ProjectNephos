@@ -22,13 +22,13 @@ class TagHandler(BaseHandler):
     NOTE: Mechanism to tag file while uploading has not yet been implemented.
     """
 
-    def init_with_config(self, config: Configuration):
+    def init_with_config(self):
         super().init_with_config(config)
 
         self.backend = DriveStorage(config)
         self.search = SearchHandler(config=config)
 
-    def init_args(self, subparser: _SubParsersAction) -> None:
+    def init_args(self, subparser) -> None:
         parser = super().init_args(subparser)
 
         parser.add_argument(
@@ -47,7 +47,7 @@ class TagHandler(BaseHandler):
     def execute_command(self, fileId, tags):
         self.backend.tag(fileId, tags)
 
-    def run(self, args: Namespace):
+    def run(self, args):
 
         relevant_files = self.search.execute_command(
             name=args.for_name, tags=None, do_and=False

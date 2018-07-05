@@ -28,12 +28,12 @@ class SearchHandler(BaseHandler):
      More fine-grained controls will be added later.
     """
 
-    def init_with_config(self, config: Configuration):
+    def init_with_config(self, config):
         super().init_with_config(config)
 
         self.backend = DriveStorage(config)
 
-    def init_args(self, subparser: _SubParsersAction) -> None:
+    def init_args(self, subparser):
         parser = super().init_args(subparser)
 
         parser.add_argument("--name", action="store", help="Search for a name")
@@ -56,7 +56,7 @@ class SearchHandler(BaseHandler):
             response = self.backend.search(name_subs=name, tag_subs=tags, do_and=do_and)
         return [(name, fid) for name, fid in response]
 
-    def run(self, args: Namespace):
+    def run(self, args):
         if not args.name and not args.tags:
             logger.critical(
                 "Neither name or tags specified. Atleast one is required. Exiting"

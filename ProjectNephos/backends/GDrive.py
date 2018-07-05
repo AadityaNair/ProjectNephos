@@ -1,4 +1,3 @@
-from json import JSONDecodeError
 from os.path import isfile
 from typing import List, Tuple
 from mimetypes import guess_type
@@ -26,7 +25,7 @@ class DriveStorage(object):
     APPLICATION_NAME = "Project Nephos"
 
     @staticmethod
-    def _run_credentials_flow(client_secret_loc: str) -> OAuth2Credentials:
+    def _run_credentials_flow(client_secret_loc):
         """
         Get credentials via OAuth2.
         Run once during the first use of Nephos or when the stored
@@ -49,7 +48,7 @@ class DriveStorage(object):
                 "the file contents at {} and try again".format(client_secret_loc)
             )
             raise OAuthFailure("Invalid Client Secret file provided")
-        except JSONDecodeError:
+        except ValueError:
             logger.critical(
                 "The client secret file is not a valid JSON file. Check it and try again."
             )
@@ -75,9 +74,7 @@ class DriveStorage(object):
 
         return credentials
 
-    def _get_credentials(
-        self, credential_path: str, client_secret_loc: str
-    ) -> OAuth2Credentials:
+    def _get_credentials(self, credential_path, client_secret_loc):
         """Gets valid user credentials from storage.
 
         If credentials do not exist, it runs the OAuth2 flow to get them.
@@ -117,7 +114,7 @@ class DriveStorage(object):
         self.file_service = service.files()
         self.perm_service = service.permissions()
 
-    def write(self, filename: str) -> dict:
+    def write(self, filename):
         """
         Upload the file the Google Drive. The file should essentially exist before you try to upload it.
         It will return the metadata of the file, as set by Google. Most important of the metadata is the `id`
@@ -146,7 +143,7 @@ class DriveStorage(object):
         logger.debug("File metadata: {}".format(f))
         return f
 
-    def is_exists(self, fileid: str) -> bool:
+    def is_exists(self, fileid):
         """
         Check if given file already exists in the Drive. It does it by requesting for the
         file metadata.
@@ -162,9 +159,7 @@ class DriveStorage(object):
             return False
         return True
 
-    def search(
-        self, name_subs: str = None, tag_subs: List[str] = None, do_and: bool = False
-    ) -> List[Tuple[str, str]]:
+    def search(self, name_subs=None, tag_subs=None, do_and=False):
         """
         Search for a file in the drive. Many filters are supported but we currently only
         search for a substring on a filename and for tags. It returns the names as well as fileids for
@@ -206,7 +201,7 @@ class DriveStorage(object):
         logger.debug("following information was returned.\n{}".format(response))
         return response
 
-    def read(self, fileid: str) -> str:
+    def read(self, fileid):
         """
         Read a file of the given id. Raises error if file does not already
         exist for some reason
@@ -224,7 +219,7 @@ class DriveStorage(object):
             logger.critical("Given file not found.")
             raise FileNotFound("{} not found on drive".format(fileid))
 
-    def delete(self, fileid: str) -> None:
+    def delete(self, fileid):
         """
         Delete a file from the cloud drive. Returns nothing on success. Error on failure.
         If file does not already exist before deleting, the operation is treated as a success.
@@ -239,7 +234,7 @@ class DriveStorage(object):
         self.file_service.delete(fileId=fileid).execute()
         logger.debug("Fileid ({}) deleted.".format(fileid))
 
-    def tag(self, fileid: str, tags: List[str]) -> None:
+    def tag(self, fileid, tags):
         """
         Add the provided tag to a valid file. The current method of adding tags involves
         directly writing the tag onto the description field of the file on the drive.
@@ -262,7 +257,7 @@ class DriveStorage(object):
         metadata = {"description": old_description + "\n" + " \n".join(tags)}
         self.file_service.update(fileId=fileid, body=metadata).execute()
 
-    def add_permissions_user(self, fileid: str, email: str, role: str) -> dict:
+    def add_permissions_user(self, fileid, email, role):
         """
         Share a given fileid with some other entity. Currently, the only supported entity
         is a single user addressed by their email. Role defines the level of access the entity can have

@@ -20,14 +20,14 @@ class PermissionHandler(BaseHandler):
     NOTE: Mechanism to tag file while uploading has not yet been implemented.
     """
 
-    def init_with_config(self, config: Configuration):
+    def init_with_config(self, config):
         super().init_with_config(config)
 
         self.backend = DriveStorage(config)
         self.db = DBStorage(config)
         self.search = SearchHandler(config=config)
 
-    def init_args(self, subparser: _SubParsersAction) -> None:
+    def init_args(self, subparser) -> None:
         parser = super().init_args(subparser)
 
         parser.add_argument(
@@ -48,7 +48,7 @@ class PermissionHandler(BaseHandler):
     def execute_command(self):
         pass
 
-    def run(self, args: Namespace):
+    def run(self, args):
         if args.action == "add":
             if not args.for_tags:
                 logger.critical("--for_tags is required. Try again.")

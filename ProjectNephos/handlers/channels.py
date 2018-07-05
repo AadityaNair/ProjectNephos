@@ -13,12 +13,12 @@ class ChannelHandler(BaseHandler):
     Handles creating channels.
     """
 
-    def init_with_config(self, config: Configuration):
+    def init_with_config(self, config):
         super().init_with_config(config)
 
         self.db = DBStorage(config)
 
-    def init_args(self, subparser: _SubParsersAction):
+    def init_args(self, subparser):
         parser = super().init_args(subparser)
 
         parser.add_argument(
@@ -36,7 +36,7 @@ class ChannelHandler(BaseHandler):
         # parser.add_argument("--language", action="store", help="Language of the stream")
         # parser.add_argument("--source", action="store", help="Source of the video.")
 
-    def run(self, args: Namespace):
+    def run(self, args):
         if args.action == "add":
             if not args.name:
                 logger.critical("--name is required. Try again.")
