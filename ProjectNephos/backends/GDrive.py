@@ -1,5 +1,4 @@
 from os.path import isfile
-from typing import List, Tuple
 from mimetypes import guess_type
 
 from apiclient import discovery
