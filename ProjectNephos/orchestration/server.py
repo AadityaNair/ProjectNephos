@@ -67,7 +67,7 @@ class Server(object):
 
             j = self.sched.add_job(
                 record_video,
-                args=[job, self.config, self.db],
+                args=[job, self.config],
                 trigger="cron",
                 minute=cron[0],
                 hour=cron[1],
