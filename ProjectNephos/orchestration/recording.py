@@ -8,19 +8,29 @@ from ProjectNephos.config import Configuration
 logger = getLogger(__name__)
 
 
-def record_video(job: Job, config: Configuration, db: DBStorage):
+def record_video(job: Job, config: Configuration):
     base_path = config["downloads", "local_save_location"]
     full_path = (
         base_path + job.name + str(datetime.now().strftime("%Y-%m-%d_%H%M")) + ".ts"
     )
 
+    db = DBStorage(config)
+
     duration = job.duration * 60 * 27000000
-    multicat = "/usr/bin/multicat"
+    multicat = config["recording", "multicat"]
 
     channel = db.get_channels(job.channel)
+    bind_ip = config["recording", "bind"]
 
-    command = "{multicat} -u -d {duration} @{ip} {path}".format(
-        multicat=multicat, duration=duration, ip=channel[0][1], path=full_path
+    if bind_ip:
+        bind_ip = "/ifaddr=" + bind_ip
+
+    command = "{multicat} -u -d {duration} @{ip}{bind} {path}".format(
+        multicat=multicat,
+        duration=duration,
+        ip=channel[0][1],
+        bind=bind_ip,
+        path=full_path,
     )
 
     p = subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
