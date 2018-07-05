@@ -7,10 +7,10 @@ from ProjectNephos.exceptions import FileNotFound
 logger = getLogger(__name__)
 
 # These values will be applied when there is no config file specified.
-BASE_FOLDER = "~/.nephos"
+BASE_FOLDER = "~/aanair_nephos/.nephos"
 default_values = {
     "google": {
-        "client_secret_location": "~/projects/ProjectNephos/client_secret.json",
+        "client_secret_location": "~/aanair_nephos/ProjectNephos/client_secret.json",
         "auth_token_location": BASE_FOLDER + "/access.json",
     },
     "downloads": {
