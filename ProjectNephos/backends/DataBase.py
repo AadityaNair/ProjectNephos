@@ -222,14 +222,12 @@ class DBStorage(object):
             self.session.commit()
             return item
 
-    def _add_filename(self, filename, jobname):
+    def add_file(self, filename, jobname):
         """
-        Helper method to add files to Download table.
-        This is for testing purposes only. IN production,
-        this will be done by the recording module.
-        :param filename:
-        :param jobname:
-        :return:
+        This method adds files to the downloads table.
+        Takes:
+            The full path to the file.
+            Name of the associated job.
         """
         entry = Download(filename=filename, jobname=jobname)
         self.session.add(entry)

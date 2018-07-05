@@ -49,3 +49,4 @@ def record_video(job: Job, config: Configuration):
                 p.stdout, p.stderr
             )
         )
+        db.add_file(full_path, job.name)
