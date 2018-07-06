@@ -49,4 +49,5 @@ def record_video(job, config):
 
     logger.debug("Recording completed successfully for the job {}".format(job))
     db.add_file(full_path, job.name)
+    db.session.close()
     return 0

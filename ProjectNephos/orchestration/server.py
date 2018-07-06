@@ -97,6 +97,8 @@ class Server(object):
             self.endjob_listener, EVENT_JOB_ERROR | EVENT_JOB_EXECUTED
         )
 
+        self.db.session.close()
+
         try:
             self.sched.start()
         except KeyboardInterrupt:

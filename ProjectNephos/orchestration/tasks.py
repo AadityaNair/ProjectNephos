@@ -85,3 +85,5 @@ def run_job(_, config):
     tag_job(fileId, associated_job.tags, config)
 
     share_job(fileid, permission_set, config)
+
+    db.session.close()
