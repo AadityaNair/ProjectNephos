@@ -14,7 +14,7 @@ def record_video(job, config):
     full_path = (
         base_path
         + job.name
-        + str(datetime.datetime.now().strftime("%Y-%m-%d_%H%M"))
+        + str(datetime.datetime.now().strftime("%Y-%m-%d_%H_%M"))
         + ".ts"
     )
 
@@ -34,20 +34,19 @@ def record_video(job, config):
         bind=bind_ip,
     )
 
-    p = subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        stdout = subprocess.check_output(command.split(), stderr=subprocess.STDOUT)
 
-    if p.returncode != 0:
+    except FileNotFoundError:
+        logger.critical(
+            "multicat does not exist at the provided path {}".format(multicat)
+        )
+        return -1
+    except subprocess.CalledProcessError:
         logger.critical("Some error has occured during recording {}".format(job))
-        # logger.critical(
-        #     "Dumping entire output:\nSTDOUT:\n{}\nSTDERR:\n{}".format(
-        #         p.stdout, p.stderr
-        #     )
-        # )
-    else:
-        logger.debug("Successful recording of {}".format(job))
-        # logger.debug(
-        #     "Dumping entire output:\nSTDOUT:\n{}\nSTDERR:\n{}".format(
-        #         p.stdout, p.stderr
-        #     )
-        # )
-        db.add_file(full_path, job.name)
+        logger.critical("Dumping output:\n{}".format(stdout))
+        return -1
+
+    logger.debug("Recording completed successfully for the job {}".format(job))
+    db.add_file(full_path, job.name)
+    return 0

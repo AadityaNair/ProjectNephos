@@ -40,7 +40,7 @@ def upload_job(upload, path, config):
 
 
 def tag_job(fileid, tagstring, config):
-    if fileid is None:
+    if fileid is None or tagstring is None:
         return None
     else:
         taglist = tagstring.split(",")

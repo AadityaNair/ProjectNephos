@@ -22,7 +22,7 @@ class TagHandler(BaseHandler):
     NOTE: Mechanism to tag file while uploading has not yet been implemented.
     """
 
-    def init_with_config(self):
+    def init_with_config(self, config):
         super().init_with_config(config)
 
         self.backend = DriveStorage(config)
