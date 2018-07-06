@@ -45,8 +45,8 @@ class PermissionHandler(BaseHandler):
             help="If provided, future uploads wont be shared.",
         )
 
-    def execute_command(self):
-        pass
+    def execute_command(self, id, email, role):
+        self.backend.add_permissions_user(fileid=id, email=email, role=role)
 
     def run(self, args):
         if args.action == "add":
