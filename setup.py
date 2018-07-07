@@ -25,10 +25,7 @@ requires = [
     "google-api-python-client",
     "oauth2client",
     "ffmpy",
-    "PyYAML",
-    "pydash",
     "sqlalchemy",
-    "pytz",
     "apscheduler",
     "coloredlogs",
 ]
