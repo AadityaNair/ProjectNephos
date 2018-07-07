@@ -96,18 +96,19 @@ nephos channel list
 ### Add job.
 Specify when to download other post download options.
 ```bash
-nephos job add --name <jobname> --channel <channel> --start <starttime> --duration <length> [--upload --convert_to <format> --tag <tag1> <tag2>]
+nephos job add --name <jobname> --channel <channel> --start <starttime> --duration <length> \
+               --upload --convert_to <format> --tag <tag1> <tag2>
 ```
-Following are mandatory arguments: 
-`--name` is the name of the job. This should be unique for each job. 
-`--channel` is the name of the associated channel. This channel should have already been added by the `channel add` subcommand. 
-`--start` is the start time of the job written in the popular cron format. For more info on the format go [here](http://www.nncron.ru/help/EN/working/cron-format.htm). This was used as an reference. 
-`--duration` is how long you want to record. This is provided in minutes.
+Following are mandatory arguments:<br>
+`--name` is the name of the job. This should be unique for each job.<br>
+`--channel` is the name of the associated channel. This channel should have already been added by the `channel add` subcommand.<br>
+`--start` is the start time of the job written in the popular cron format. For more info on the format go [here](http://www.nncron.ru/help/EN/working/cron-format.htm). This was used as an reference.<br>
+`--duration` is how long you want to record. This is provided in minutes.<br>
 
 Rest are optional arguments: 
-`--upload` instructs nephos to upload the file to Google Drive. This will most likely not be an option in the future versions. 
-`--convert_to` makes so that the downloaded file is converted to the provided format before being uploaded. 
-`--tag` tags the uploaded file with the provided tags.
+`--upload` instructs nephos to upload the file to Google Drive. This will most likely be the default case in the future versions. In such a case, this option will be removed. <br>
+`--convert_to` makes so that the downloaded file is converted to the provided format before being uploaded.<br>
+`--tag` tags the uploaded file with the provided tags.<br>
 
 Note that `--tag` is dependent providing the `--upload` option. If it not provided `--tag` is a NOOP.
 
