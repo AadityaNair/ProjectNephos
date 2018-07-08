@@ -98,7 +98,7 @@ class DriveStorage(object):
             store.put(credentials)
         return credentials
 
-    def __init__(self, config: Configuration):
+    def __init__(self, config):
         """
         Driver code to interact with Google Drive.
         This will try to authorize with your google account before proceeding.

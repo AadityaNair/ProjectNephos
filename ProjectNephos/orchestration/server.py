@@ -45,7 +45,7 @@ class Server(object):
             executor=ProcessPoolExecutor(5),
             job_defaults={
                 "coalesce": True,  # Combine multiple waiting instances of the same job into one.
-                "max_instances": 1,  # Total number of concurrent instances for the sam job. Change to 1 for upload.
+                "max_instances": 9,  # Total number of concurrent instances for the sam job.
             },
         )
 
