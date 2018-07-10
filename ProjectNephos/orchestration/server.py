@@ -45,7 +45,7 @@ class Server(object):
             executor=ProcessPoolExecutor(5),
             job_defaults={
                 "coalesce": True,  # Combine multiple waiting instances of the same job into one.
-                "max_instances": 9,  # Total number of concurrent instances for the sam job.
+                "max_instances": 9,  # Total number of concurrent instances for the same job.
             },
         )
 
@@ -57,7 +57,7 @@ class Server(object):
                 trigger="interval",
                 seconds=self.REFRESH_TIMER,
             )
-            logger.critical("Added job {}: {}".format(j.id, j.func))
+            logger.debug("Added regular job {}: {}".format(j.id, j.func))
 
     def add_recording_jobs(self):
         job_list = self.db.get_job()
@@ -76,7 +76,7 @@ class Server(object):
                 day_of_week=cron[4],
                 year=cron[5],
             )
-            logger.critical("Added job {}: {}".format(j.id, j.func))
+            logger.debug("Added recording job {}: {}".format(j.id, j.func))
 
     @staticmethod
     def endjob_listener(event):
@@ -102,6 +102,6 @@ class Server(object):
         try:
             self.sched.start()
         except KeyboardInterrupt:
-            logger.info("Interrupt recieved.")
+            logger.info("Interrupt received.")
             self.sched.shutdown()
             logger.debug("Orchestration shut down.")
