@@ -113,13 +113,16 @@ class DriveStorage(object):
         self.file_service = service.files()
         self.perm_service = service.permissions()
 
-    def write(self, filename):
+    def write(self, filename, folder=None):
         """
         Upload the file the Google Drive. The file should essentially exist before you try to upload it.
         It will return the metadata of the file, as set by Google. Most important of the metadata is the `id`
         which is unique to each file.
+
+        Optionally, it also takes the name of the folder you want to upload to.
         Takes:
             path to the file as a string.
+            (optional) name of the folder to upload to.
         Returns:
              The metadata dictionary
         """
@@ -136,6 +139,10 @@ class DriveStorage(object):
             "name": filename.split("/")[-1],  # Get filename from path
             "description": "",  # Required so that the field actually exists when the file is uploaded.
         }
+
+        if folder is not None:
+            f_id = self.create_folder(folder)
+            file_metadata['parents'] = [f_id]
 
         f = self.file_service.create(body=file_metadata, media_body=media).execute()
         logger.info("File successfully uploaded.")
@@ -157,6 +164,39 @@ class DriveStorage(object):
         except HttpError:
             return False
         return True
+
+    def create_folder(self, name):
+        """
+        Create a folder with a given name. If the folder already exists, the function is a NOOP.
+
+        Takes:
+            the name of the folder to create.
+        Returns:
+            the id of the folder
+        """
+        search_query = "name = '{}' and mimeType = '{}'".format(
+            name, "application/vnd.google-apps.folder"
+        )
+        resp = self.file_service.list(q=search_query, pageSize=5).execute()
+        folders = resp.get("files", [])
+
+        if len(folders) == 0:
+            logger.debug("No such folder exists. Creating new one.")
+
+        if len(folders) == 1:
+            logger.debug("Folder found.")
+            return folders[0]["id"]
+
+        if len(folders) > 1:
+            logger.critical("Multiple such folders exists. Choosing the first one.")
+            return folders[0]["id"]
+
+        folder_metadata = {
+            "name": name,
+            "mimeType": "application/vnd.google-apps.folder",
+        }
+        file = self.file_service.create(body=folder_metadata, fields="id").execute()
+        return file.get("id")
 
     def search(self, name_subs=None, tag_subs=None, do_and=False):
         """
