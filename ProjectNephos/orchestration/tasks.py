@@ -67,6 +67,7 @@ def run_job(_, config):
     db = DBStorage(config)
     download = db.pop_download()
     if download is None:
+        db.session.close()
         return 5
 
     associated_job = db.get_job(download.jobname)
