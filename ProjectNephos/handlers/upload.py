@@ -27,8 +27,8 @@ class UploadHandler(BaseHandler):
 
         parser.add_argument("files", nargs="+", help="Files you want to upload.")
 
-    def execute_command(self, filepath):
-        return self.backend.write(filepath)
+    def execute_command(self, filepath, folder):
+        return self.backend.write(filepath, folder)
 
     def run(self, args):
         if not args.ignore_errors:

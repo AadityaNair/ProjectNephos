@@ -30,13 +30,13 @@ def process_job(convert_to, filename, config):
         return filename
 
 
-def upload_job(upload, path, config):
+def upload_job(upload, path, folder, config):
     if not upload:
         return None
     else:
         u = UploadHandler("upload")
         u.init_with_config(config)
-        mdata = u.execute_command(path)
+        mdata = u.execute_command(path, folder)
         return mdata["id"]
 
 
@@ -81,7 +81,7 @@ def run_job(_, config):
 
     new_path = process_job(associated_job.convert_to, download.filename, config)
 
-    fileId = upload_job(associated_job.upload, new_path, config)
+    fileId = upload_job(associated_job.upload, new_path, associated_job.channel, config)
 
     tag_job(fileId, associated_job.tags, config)
 
