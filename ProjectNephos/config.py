@@ -22,6 +22,7 @@ default_values = {
         "db_location": BASE_FOLDER + "/nephos.sqlite",
         "multicat": "~/multicat-2.1/multicat",
         "bind": "159.237.36.240",
+        'logs': BASE_FOLDER + '/recording.log'
     },
     "web": {"host": "0.0.0.0", "port": "5000"},
     "mail": {

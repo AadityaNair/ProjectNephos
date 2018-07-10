@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+from os.path import expanduser
 
 from ProjectNephos.config import Configuration, CONFIG_FULL_PATH_DEFAULT
 
@@ -56,7 +57,7 @@ def main():
     args = parser.parse_args()
 
     if args.verbose:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(filename=expanduser('~/aanair_nephos/.nephos/recording.log'), level=logging.DEBUG)
     else:
         logging.basicConfig()
 
