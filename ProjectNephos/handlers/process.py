@@ -1,3 +1,5 @@
+import subprocess
+
 from ProjectNephos.exceptions import FileNotFound
 from ProjectNephos.handlers.base import BaseHandler
 
@@ -42,5 +44,12 @@ class ProcessHandler(BaseHandler):
         ff.run()
 
     def execute_command(self, input_file, output_file):
-        ff = ffmpy.FFmpeg(inputs={input_file: None}, outputs={output_file: None})
-        ff.run()
+        command = "ffmpeg -i {input} {output}".format(
+            input=input_file, output=output_file
+        )
+
+        process = subprocess.Popen(
+            command.split(), stderr=subprocess.STDOUT, stdout=subprocess.PIPE
+        )
+        stdout, _ = process.communicate()
+        return stdout.decode('ascii')

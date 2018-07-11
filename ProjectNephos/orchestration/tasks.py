@@ -24,7 +24,8 @@ def process_job(convert_to, filename, config):
         new_full_path = config["downloads", "temp_save_location"] + new_filename
         logger.critical(new_full_path)
 
-        p.execute_command(filename, new_full_path)
+        stdout = p.execute_command(filename, new_full_path)
+        logger.debug("FFMPEG OUTPUT:\n{}".format(stdout))
         return new_full_path
     else:
         return filename
