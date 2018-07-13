@@ -1,3 +1,5 @@
+import os
+
 from ProjectNephos.backends import DBStorage
 from ProjectNephos.handlers.upload import UploadHandler
 from ProjectNephos.handlers.process import ProcessHandler
@@ -64,6 +66,22 @@ def share_job(fileid, permission_set, config):
     return 1
 
 
+def delete_job(old_path, new_path):
+    l = old_path.split(".")
+    l.pop()  # Remove old extension
+    l.append(aux)  # add new extension
+    aux_file = ".".join(l)
+
+    os.remove(old_path)
+    logger.debug("Deleted file {}".format(old_path))
+
+    os.remove(aux_file)
+    logger.debug("Deleted file {}".format(aux_file))
+
+    os.remove(new_path)
+    logger.debug("Deleted file {}".format(new_path))
+
+
 def run_job(_, config):
     db = DBStorage(config)
     download = db.pop_download()
@@ -87,5 +105,7 @@ def run_job(_, config):
     tag_job(fileId, associated_job.tags, config)
 
     share_job(fileId, permission_set, config)
+
+    delete_job(download.filename, new_path)
 
     db.session.close()
