@@ -14,7 +14,7 @@ def record_video(job, config):
     full_path = (
         base_path
         + job.name
-        + " "
+        + "--"
         + str(datetime.datetime.now().strftime("%Y%m%d_%H:%M"))
         + ".ts"
     )
