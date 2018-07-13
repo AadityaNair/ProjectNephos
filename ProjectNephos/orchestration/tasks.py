@@ -69,7 +69,7 @@ def share_job(fileid, permission_set, config):
 def delete_job(old_path, new_path):
     l = old_path.split(".")
     l.pop()  # Remove old extension
-    l.append(aux)  # add new extension
+    l.append("aux")  # add new extension
     aux_file = ".".join(l)
 
     os.remove(old_path)
