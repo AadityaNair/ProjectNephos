@@ -2,7 +2,7 @@ class NephosException(Exception):
     pass
 
 
-class OAuthFailure(NephosException):
+class AuthFailure(NephosException):
     pass
 
 

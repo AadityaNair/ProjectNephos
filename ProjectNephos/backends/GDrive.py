@@ -13,7 +13,7 @@ from logging import getLogger
 
 from oauth2client.clientsecrets import InvalidClientSecretsError
 
-from ProjectNephos.exceptions import OAuthFailure, FileNotFound
+from ProjectNephos.exceptions import AuthFailure, FileNotFound
 from ProjectNephos.config import Configuration
 
 logger = getLogger(__name__)
@@ -46,12 +46,12 @@ class DriveStorage(object):
                 "An invalid client secret file was supplied. Check"
                 "the file contents at {} and try again".format(client_secret_loc)
             )
-            raise OAuthFailure("Invalid Client Secret file provided")
+            raise AuthFailure("Invalid Client Secret file provided")
         except ValueError:
             logger.critical(
                 "The client secret file is not a valid JSON file. Check it and try again."
             )
-            raise OAuthFailure("Non JSON client secret file was provided.")
+            raise AuthFailure("Non JSON client secret file was provided.")
 
         flow.user_agent = DriveStorage.APPLICATION_NAME
 
@@ -68,7 +68,7 @@ class DriveStorage(object):
                 "Authentication flow has failed due to bad code entered. This can happen because some "
                 "entries in the client secret is corrupted. Please check the file and try again."
             )
-            raise OAuthFailure("Invalid Code")
+            raise AuthFailure("Invalid Code")
         logger.debug("Auth flow has been completed successfully")
 
         return credentials

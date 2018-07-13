@@ -1,7 +1,7 @@
 from googleapiclient.errors import HttpError
 
 from ProjectNephos.backends.GDrive import DriveStorage
-from ProjectNephos.exceptions import OAuthFailure, FileNotFound
+from ProjectNephos.exceptions import AuthFailure, FileNotFound
 from mock import MagicMock, patch
 import pytest
 
