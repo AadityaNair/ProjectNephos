@@ -2,14 +2,7 @@ import ftplib, io
 from logging import getLogger
 from os.path import isfile
 
-# from ProjectNephos.exceptions import AuthFailure, FileNotFound
-class AuthFailure(Exception):
-    pass
-
-
-class FileNotFound(Exception):
-    pass
-
+from ProjectNephos.exceptions import AuthFailure, FileNotFound
 
 logger = getLogger(__name__)
 
@@ -85,14 +78,72 @@ class FTPClient(object):
             logger.debug("Created new folder.")
         return "/" + foldername
 
+    def _traverse_tree(self, start):
+        for item in self.ftp.mlsd(start):
+            if item[1]["type"] == "dir":
+                old_pwd = self.ftp.pwd()
+                self.ftp.cwd(item[0])
+                yield from self._traverse_tree(".")
+                self.ftp.cwd(old_pwd)
+            else:
+                item[1]["folder"] = self.ftp.pwd()
+                yield item
+
     def search(self, name_subs=None, tag_subs=None, do_and=False):
-        pass
+        # Current implementation is only for either search by name
+        # or search by tags but not both
+        if name_subs is not None and tag_subs is not None:
+            raise NotImplementedError(
+                "Currently only one of name_subs or tag_subs can be provided."
+            )
+        matching_items = []
+        if name_subs is not None:
+            for file in self._traverse_tree("/"):
+                if file[0].endswith(".tag"):
+                    continue
+                else:
+                    if file[0].find(name_subs) != -1:
+                        matching_items.append(file[1]["folder"] + "/" + file[0])
 
-    def read(self, fileid):
-        pass
+        if tag_subs is not None:
+            for file in self._traverse_tree("/"):
+                if file[0].endswith(".tag"):
+                    full_path = file[1]["folder"] + "/" + file[0]
 
-    def delete(self, fileid):
-        pass
+                    contents = self.read(full_path)
+                    matching_tags = list(map(contents.find, tag_subs))
+
+                    if do_and:
+                        if (
+                            len(list(filter(lambda x: x != -1, matching_tags)))
+                            == len(matching_tags)
+                            and len(matching_tags) > 0
+                        ):
+                            matching_items.append(full_path)
+                    else:
+                        if len(list(filter(lambda x: x != -1, matching_tags))) > 0:
+                            matching_items.append(full_path)
+
+        return matching_items
+
+    def read(self, filepath):
+        logger.debug("Trying to read file id: {}".format(filepath))
+
+        if self.is_exists(filepath):
+            fp = io.BytesIO()
+            self.ftp.retrbinary("RETR {}".format(filepath), fp.write)
+            return fp.getvalue().decode("ascii")
+        else:
+            logger.critical("Given file not found.")
+            raise FileNotFound("{} not found on drive".format(filepath))
+
+    def delete(self, filepath):
+        if not self.is_exists(filepath):
+            logger.warning("The provided fileid ({}) never existed.".format(filepath))
+            return None
+
+        self.ftp.delete(filepath)
+        logger.debug("Fileid ({}) deleted.".format(filepath))
 
     def tag(self, filepath, tags):
         if not self.is_exists(filepath):
