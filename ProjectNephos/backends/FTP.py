@@ -7,7 +7,7 @@ from ProjectNephos.exceptions import AuthFailure, FileNotFound
 logger = getLogger(__name__)
 
 
-class FTPClient(object):
+class FTPStorage(object):
 
     def __init__(self, config):
         self.ftp = ftplib.FTP()
