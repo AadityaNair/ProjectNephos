@@ -42,7 +42,7 @@ default_values = {
         "from": "projectnephos@localhost.local",
         "to": "example@localhost.local",
     },
-    "others": {"sentry_dsn": ""},
+    "others": {"sentry_dsn": "", "backends": "google ftp"},
 }
 
 USER_CONFIG_LOC = BASE_FOLDER
