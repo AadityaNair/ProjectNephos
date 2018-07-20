@@ -39,8 +39,8 @@ def upload_job(upload, path, folder, config):
     else:
         u = UploadHandler("upload")
         u.init_with_config(config)
-        mdata = u.execute_command(path, folder)
-        return mdata["id"]
+        fileid = u.execute_command(path, folder)
+        return fileid
 
 
 def tag_job(fileid, tagstring, config):

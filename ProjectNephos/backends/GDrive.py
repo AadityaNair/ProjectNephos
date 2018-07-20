@@ -142,12 +142,12 @@ class DriveStorage(object):
 
         if folder is not None:
             f_id = self.create_folder(folder)
-            file_metadata['parents'] = [f_id]
+            file_metadata["parents"] = [f_id]
 
         f = self.file_service.create(body=file_metadata, media_body=media).execute()
         logger.info("File successfully uploaded.")
         logger.debug("File metadata: {}".format(f))
-        return f
+        return f['id']
 
     def is_exists(self, fileid):
         """
