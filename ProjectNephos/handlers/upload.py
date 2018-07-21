@@ -1,4 +1,4 @@
-from ProjectNephos.backends import DriveStorage
+from ProjectNephos.backends import DataStore
 from ProjectNephos.config import Configuration
 from ProjectNephos.handlers.base import BaseHandler
 
@@ -20,7 +20,7 @@ class UploadHandler(BaseHandler):
     def init_with_config(self, config):
         super().init_with_config(config)
 
-        self.backend = DriveStorage(config)
+        self.backend = DataStore(config)
 
     def init_args(self, subparser):
         parser = super().init_args(subparser)

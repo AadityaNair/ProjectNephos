@@ -1,4 +1,4 @@
-from ProjectNephos.backends import DriveStorage
+from ProjectNephos.backends import DataStore
 from ProjectNephos.config import Configuration
 from ProjectNephos.handlers.base import BaseHandler
 from ProjectNephos.handlers.search import SearchHandler
@@ -25,7 +25,7 @@ class TagHandler(BaseHandler):
     def init_with_config(self, config):
         super().init_with_config(config)
 
-        self.backend = DriveStorage(config)
+        self.backend = DataStore(config)
         self.search = SearchHandler(config=config)
 
     def init_args(self, subparser) -> None:

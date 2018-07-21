@@ -1,4 +1,4 @@
-from ProjectNephos.backends import DriveStorage
+from ProjectNephos.backends import DataStore
 from ProjectNephos.config import (
     Configuration,
     CONFIG_FULL_PATH_DEFAULT,
@@ -51,7 +51,7 @@ class InitHandler(BaseHandler):
         self._create_config(args.config)
 
         logger.debug("Starting OAuth with Google.")
-        DriveStorage(self.config)
+        DataStore(self.config)
         logger.debug("OAuth completed.")
 
         logger.debug("Starting Orchestration.")

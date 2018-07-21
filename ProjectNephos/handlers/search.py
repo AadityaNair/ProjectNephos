@@ -1,4 +1,4 @@
-from ProjectNephos.backends import DriveStorage
+from ProjectNephos.backends import DataStore
 from ProjectNephos.config import Configuration
 from ProjectNephos.handlers.base import BaseHandler
 
@@ -31,7 +31,7 @@ class SearchHandler(BaseHandler):
     def init_with_config(self, config):
         super().init_with_config(config)
 
-        self.backend = DriveStorage(config)
+        self.backend = DataStore(config)
 
     def init_args(self, subparser):
         parser = super().init_args(subparser)
@@ -54,7 +54,7 @@ class SearchHandler(BaseHandler):
             return
         else:
             response = self.backend.search(name_subs=name, tag_subs=tags, do_and=do_and)
-        return [(name, fid) for name, fid in response]
+        return response
 
     def run(self, args):
         if not args.name and not args.tags:
