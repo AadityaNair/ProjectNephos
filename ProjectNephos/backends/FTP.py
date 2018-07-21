@@ -103,7 +103,9 @@ class FTPStorage(object):
                     continue
                 else:
                     if file[0].find(name_subs) != -1:
-                        matching_items.append(file[1]["folder"] + "/" + file[0])
+                        matching_items.append(
+                            (file[0], file[1]["folder"] + "/" + file[0])
+                        )
 
         if tag_subs is not None:
             for file in self._traverse_tree("/"):
@@ -119,10 +121,10 @@ class FTPStorage(object):
                             == len(matching_tags)
                             and len(matching_tags) > 0
                         ):
-                            matching_items.append(full_path)
+                            matching_items.append((file[0], full_path))
                     else:
                         if len(list(filter(lambda x: x != -1, matching_tags))) > 0:
-                            matching_items.append(full_path)
+                            matching_items.append((file[0], full_path))
 
         return matching_items
 

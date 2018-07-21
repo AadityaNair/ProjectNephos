@@ -10,11 +10,11 @@ class DataStore(object):
         self.backends = {}
 
         for item in config["others", "backends"].split():
-            backends[item] = options[item](config)
+            self.backends[item] = options[item](config)
 
-    def write(self, filename, folder):
+    def write(self, filename, folder=None):
         response = {}
-        for backend, obj in self.backends:
+        for backend, obj in self.backends.items():
             response[backend] = obj.write(filename, folder)
 
         return response
@@ -24,16 +24,26 @@ class DataStore(object):
 
     def create_folder(self, name):
         response = {}
-        for backend, obj in self.backends:
+        for backend, obj in self.backends.items():
             response[backend] = obj.create_folder(name)
 
         return response
 
     def search(self, name_subs=None, tag_subs=None, do_and=False):
-        response = {}
-        for backend, obj in self.backends:
-            response[backend] = obj.search(name_subs, tag_subs, do_and)
-
+        response = []
+        for backend, obj in self.backends.items():
+            intr = sorted(obj.search(name_subs, tag_subs, do_and), key=lambda x: x[0])
+            if len(response) == 0:
+                response = [(x[0], {backend: x[1]}) for x in intr]
+            else:
+                for item in intr:
+                    name, id = item
+                    for i in range(len(response)):
+                        if response[i][0] == name:
+                            break
+                    value = response[i]
+                    value[1][backend] = id
+                    response[i] = value
         return response
 
     def read(self, fileids):
@@ -45,11 +55,11 @@ class DataStore(object):
 
     def tag(self, fileids, tags):
         response = {}
-        for backend, obj in self.backends:
+        for backend, obj in self.backends.items():
             response[backend] = obj.tag(fileids[backend], tags)
 
         return response
 
     def add_permission_user(self, fileids, email, role):
-        for backend, obj in self.backends:
+        for backend, obj in self.backends.items():
             obj.add_permission_user(fileids[backend], email, role)
