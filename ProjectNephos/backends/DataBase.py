@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, ForeignKey, Boolean, event
+from sqlalchemy import create_engine, ForeignKey, Boolean, event, or_
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer
@@ -52,6 +52,28 @@ class Job(Base):
     def __repr__(self):
         return "<Job: namne={}, channel={}, convert_to={}, upload={}, tags={}>".format(
             self.name, self.channel, self.convert_to, self.upload, self.tags
+        )
+
+
+class Schedule(Base):
+    """
+    Store the schedules for all configured channels.
+    This is a manual step and not yet performed automatically
+    """
+    __tablename__ = "schedule"
+
+    id = Column(Integer, primary_key=True)
+
+    channel = Column(String, ForeignKey("channel.name"))
+    program = Column(String, nullable=False)
+    start = Column(String(16))
+    duration = Column(Integer)
+
+    tags = Column(String)
+
+    def __repr__(self):
+        return "<Schedule: program={}, channel={}, start={}, duration={}, tags={}>".format(
+            self.program, self.channel, self.start, self.duration, self.tags
         )
 
 
@@ -220,3 +242,23 @@ class DBStorage(object):
         entry = Download(filename=filename, jobname=jobname)
         self.session.add(entry)
         self.session.commit()
+
+    def add_schdeule(self, program, channel, start, duration, tags):
+        entry = Schedule(
+            program=program,
+            channel=channel,
+            start=start,
+            duration=duration,
+            tags=",".join(tags),
+        )
+        self.session.add(entry)
+        self.session.commit()
+
+    def get_schedule_items(self, channel=None, tags=None):
+        if tags is None:
+            return (
+                self.session.query(Schedule).filter(Schedule.channel == channel).all()
+            )
+        else:
+            paramaters = [Schedule.tags.like("%{}%".format(x)) for x in tags]
+            return self.session.query(Schedule).filter(or_(*paramaters)).all()

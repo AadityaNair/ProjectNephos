@@ -51,6 +51,14 @@ class JobHandler(BaseHandler):
         )
 
         parser.add_argument(
+            "--program_tags",
+            action="store",
+            nargs="+",
+            help="If program schedule is updated, use this download all programs with a given tag."
+            " Ignores --channel, --start and --duration",
+        )
+
+        parser.add_argument(
             "--upload",
             action="store_true",
             help="Set if you want to upload to Google Drive",
@@ -64,37 +72,60 @@ class JobHandler(BaseHandler):
             "--tags",
             action="store",
             nargs="*",
-            help="Start time of the job in cron format",
+            help="Tags you want to upload the file with",
         )
 
     def run(self, args):
         if args.action == "add":
-            if not all([args.channel, args.name, args.start, args.duration]):
-                logger.critical(
-                    "All of the following options are required: --channel, --name, --start, --duration"
-                )
-                return -1
+            if not args.program_tags:
+                if not all([args.channel, args.name, args.start, args.duration]):
+                    logger.critical(
+                        "All of the following options are required: --channel, --name, --start, --duration"
+                    )
+                    return -1
 
-            if len(self.db.get_channels(name=args.channel)) == 0:
-                logger.critical(
-                    "Provided channel name does not exist. Please provide a correct one."
-                )
-                return -1
-            if self.db.get_job(jobname=args.name) is not None:
-                logger.critical(
-                    "There is already a job by that name. Choose a different name."
-                )
-                return -1
+                if len(self.db.get_channels(name=args.channel)) == 0:
+                    logger.critical(
+                        "Provided channel name does not exist. Please provide a correct one."
+                    )
+                    return -1
+                if self.db.get_job(jobname=args.name) is not None:
+                    logger.critical(
+                        "There is already a job by that name. Choose a different name."
+                    )
+                    return -1
 
-            self.db.add_job(
-                args.name,
-                args.channel,
-                args.start,
-                args.duration,
-                args.upload,
-                args.convert_to,
-                args.tags,
-            )
+                self.db.add_job(
+                    args.name,
+                    args.channel,
+                    args.start,
+                    args.duration,
+                    args.upload,
+                    args.convert_to,
+                    args.tags,
+                )
+            else:
+                if not args.name:
+                    logger.critical(
+                            "Job name is required."
+                    )
+                    return -1
+                if self.db.get_job(jobname=args.name) is not None:
+                    logger.critical(
+                            "There is already a job by that name. Choose a different name."
+                    )
+                    return -1
+                individual_programs = self.db.get_schedule_items(tags=args.program_tags)
+                for prog in individual_programs:
+                    self.db.add_job(
+                            args.name + '->' + prog.program,
+                            prog.channel,
+                            prog.start,
+                            prog.duration,
+                            args.upload,
+                            args.convert_to,
+                            args.tags,
+                            )
 
         if args.action == "list":
             for items in self.db.get_job():
