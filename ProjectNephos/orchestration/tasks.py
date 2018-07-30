@@ -82,6 +82,19 @@ def delete_job(old_path, new_path):
     logger.debug("Deleted file {}".format(new_path))
 
 
+def delete_and_upload_log(config, rec_path, folder):
+   f = rec_path.split('/')[-1]
+   fname = f.split('.')[0]
+   log_file_path = (
+        config["recording", "logs"]
+        + fname
+        + ".log"
+    )
+   u = UploadHandler(config=config)
+   u.execute_command(log_file_path, folder)
+   os.remove(log_file_path)
+
+
 def run_job(_, config):
     db = DBStorage(config)
     download = db.pop_download()
@@ -107,5 +120,7 @@ def run_job(_, config):
     share_job(fileId, permission_set, config)
 
     delete_job(download.filename, new_path)
+
+    delete_and_upload_log(config, download.filename, associated_job.channel)
 
     db.session.close()
