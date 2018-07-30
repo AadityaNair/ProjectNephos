@@ -31,12 +31,7 @@ def main():
 
     # TODO: More information can be added to the definitions below
     parser = argparse.ArgumentParser(prog="nephos")
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging. Beware, it prints a lot of things.",
-    )
+
     parser.add_argument(
         "--ignore_errors",
         action="store_true",
@@ -56,10 +51,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.verbose:
-        logging.basicConfig(filename=expanduser('~/aanair_nephos/.nephos/recording.log'), level=logging.DEBUG)
-    else:
-        logging.basicConfig()
+    logging.basicConfig(filename=expanduser('~/aanair_nephos/.nephos/recording.log'), level=logging.DEBUG)
 
     logger = logging.getLogger(__name__)
     logger.debug("The following args were found {}".format(args))
