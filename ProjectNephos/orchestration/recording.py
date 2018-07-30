@@ -1,11 +1,11 @@
 import datetime
 import subprocess
-from logging import getLogger
+import logging
 
 from ProjectNephos.backends.DataBase import Job, DBStorage
 from ProjectNephos.config import Configuration
 
-logger = getLogger(__name__)
+# logger = getLogger(__name__)
 
 
 def record_video(job, config):
@@ -18,6 +18,23 @@ def record_video(job, config):
         + str(datetime.datetime.now().strftime("%Y%m%d_%H:%M"))
         + ".ts"
     )
+
+    log_file_path = (
+        config["recording", "logs"]
+        + job.name
+        + "--"
+        + str(datetime.datetime.now().strftime("%Y%m%d_%H:%M"))
+        + ".log"
+    )
+
+    logger = logging.getLogger("job_log")
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(log_file_path)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
 
     duration = job.duration * 60 * 27000000
     multicat = config["recording", "multicat"]
