@@ -255,6 +255,8 @@ class DBStorage(object):
         self.session.commit()
 
     def get_schedule_items(self, channel=None, tags=None):
+        if tags is None and channel is None:
+            return self.session.query(Schedule).all()
         if tags is None:
             return (
                 self.session.query(Schedule).filter(Schedule.channel == channel).all()

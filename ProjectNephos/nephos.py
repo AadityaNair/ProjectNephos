@@ -14,6 +14,7 @@ from ProjectNephos.handlers.init import InitHandler
 from ProjectNephos.handlers.permissions import PermissionHandler
 from ProjectNephos.handlers.channels import ChannelHandler
 from ProjectNephos.handlers.jobs import JobHandler
+from ProjectNephos.handlers.schedule import ScheduleHandler
 
 ActionHandlers = [
     UploadHandler("upload"),
@@ -24,6 +25,7 @@ ActionHandlers = [
     PermissionHandler("permission"),
     ChannelHandler("channel"),
     JobHandler("job"),
+    ScheduleHandler("schedule"),
 ]
 
 
@@ -51,7 +53,10 @@ def main():
 
     args = parser.parse_args()
 
-    logging.basicConfig(filename=expanduser('~/aanair_nephos/.nephos/recording.log'), level=logging.DEBUG)
+    logging.basicConfig(
+        filename=expanduser("~/aanair_nephos/.nephos/recording.log"),
+        level=logging.DEBUG,
+    )
 
     logger = logging.getLogger(__name__)
     logger.debug("The following args were found {}".format(args))
