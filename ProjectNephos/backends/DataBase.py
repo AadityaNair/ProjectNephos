@@ -42,6 +42,7 @@ class Job(Base):
     duration = Column(Integer)
 
     convert_to = Column(String(8))
+    subtitles = Column(Boolean)
     upload = Column(Boolean)
     tags = Column(String(1200))
 
@@ -199,7 +200,9 @@ class DBStorage(object):
             response = self.session.query(Channel).filter(Channel.name == name)
         return [(x.name, x.ip_string) for x in response]
 
-    def add_job(self, name, channel, start, duration, upload, convert_to, tags):
+    def add_job(
+        self, name, channel, start, duration, upload, convert_to, subtitles, tags
+    ):
         if tags:
             tagstring = ",".join(tags)
         else:
@@ -211,6 +214,7 @@ class DBStorage(object):
             duration=duration,
             upload=upload,
             convert_to=convert_to,
+            subtitles=subtitles,
             tags=tagstring,
         )
         self.session.add(entry)
