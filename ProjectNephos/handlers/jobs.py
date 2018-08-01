@@ -69,6 +69,11 @@ class JobHandler(BaseHandler):
             help="Format you want to convert the file to.",
         )
         parser.add_argument(
+            "--subtitles",
+            action="store_true",
+            help="Set if you also want to extract subtitles",
+        )
+        parser.add_argument(
             "--tags",
             action="store",
             nargs="*",
@@ -102,30 +107,30 @@ class JobHandler(BaseHandler):
                     args.duration,
                     args.upload,
                     args.convert_to,
+                    args.subtiles,
                     args.tags,
                 )
             else:
                 if not args.name:
-                    logger.critical(
-                            "Job name is required."
-                    )
+                    logger.critical("Job name is required.")
                     return -1
                 if self.db.get_job(jobname=args.name) is not None:
                     logger.critical(
-                            "There is already a job by that name. Choose a different name."
+                        "There is already a job by that name. Choose a different name."
                     )
                     return -1
                 individual_programs = self.db.get_schedule_items(tags=args.program_tags)
                 for prog in individual_programs:
                     self.db.add_job(
-                            args.name + '->' + prog.program,
-                            prog.channel,
-                            prog.start,
-                            prog.duration,
-                            args.upload,
-                            args.convert_to,
-                            args.tags,
-                            )
+                        args.name + "->" + prog.program,
+                        prog.channel,
+                        prog.start,
+                        prog.duration,
+                        args.upload,
+                        args.convert_to,
+                        args.subtitles,
+                        args.tags,
+                    )
 
         if args.action == "list":
             for items in self.db.get_job():
