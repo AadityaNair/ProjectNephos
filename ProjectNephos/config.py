@@ -21,6 +21,7 @@ default_values = {
         "driver": "sqlite",
         "db_location": BASE_FOLDER + "/nephos.sqlite",
         "multicat": "~/multicat-2.1/multicat",
+        "ccextractor": "~/aanair_nephos/ccextractor",
         "bind": "159.237.36.240",
         "logs": BASE_FOLDER + "/logs/",
     },
