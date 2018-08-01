@@ -107,7 +107,7 @@ class JobHandler(BaseHandler):
                     args.duration,
                     args.upload,
                     args.convert_to,
-                    args.subtiles,
+                    args.subtitles,
                     args.tags,
                 )
             else:
