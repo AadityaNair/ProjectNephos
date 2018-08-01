@@ -52,4 +52,16 @@ class ProcessHandler(BaseHandler):
             command.split(), stderr=subprocess.STDOUT, stdout=subprocess.PIPE
         )
         stdout, _ = process.communicate()
-        return stdout.decode('ascii')
+        return stdout.decode("ascii")
+
+    def execute_ccextractor(self, input_file, output_file):
+        command = "{ccextractor} {input} -o {output}".format(
+            ccextractor=self.config["recording", "ccextractor"],
+            input=input_file,
+            output=output_file,
+        )
+        process = subprocess.Popen(
+                command.split(), stderr=subprocess.STDOUT, stdout=subprocess.PIPE
+        )
+        stdout, _ = process.communicate()
+        return stdout.decode("ascii")
