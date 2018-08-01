@@ -83,16 +83,12 @@ def delete_job(old_path, new_path):
 
 
 def delete_and_upload_log(config, rec_path, folder):
-   f = rec_path.split('/')[-1]
-   fname = f.split('.')[0]
-   log_file_path = (
-        config["recording", "logs"]
-        + fname
-        + ".log"
-    )
-   u = UploadHandler(config=config)
-   u.execute_command(log_file_path, folder)
-   os.remove(log_file_path)
+    f = rec_path.split("/")[-1]
+    fname = f.split(".")[0]
+    log_file_path = config["recording", "logs"] + fname + ".log"
+    u = UploadHandler(config=config)
+    u.execute_command(log_file_path, folder)
+    os.remove(log_file_path)
 
 
 def run_job(_, config):
