@@ -58,8 +58,26 @@ def test_credentials_preexisting(runcf, Storage, *_):
     runcf.assert_not_called()
 
 
-def test_credentials_flow_invalid_secret():
-    pass
+@patch(MODULE_NAME + ".discovery.build")
+@patch(MODULE_NAME + ".Http")
+@patch(MODULE_NAME + ".Storage")
+@patch(MODULE_NAME + ".DriveStorage._run_credentials_flow")
+def test_credentials_flow_invalid_secret(runcf, Storage, *_):
+    creds = MagicMock()
+    creds.invalid = True
+    store = MagicMock()
+    store.get.return_value = creds
+    Storage.return_value = store
+
+    returned_creds = MagicMock()
+    runcf.return_value = returned_creds
+
+    DriveStorage(MagicMock())
+
+    Storage.assert_called_once()
+    store.get.assert_called_once()
+    runcf.assert_called_once()
+    store.put.assert_called_once_with(returned_creds)
 
 
 def test_credentials_flow_bad_json():
@@ -88,6 +106,63 @@ def default_object(build, *_):
     build.return_value = service
     g = DriveStorage(MagicMock())
     return g, file_service, perm_service
+
+
+def test_folder_preexisiting(default_object):
+    g, file_service, _ = default_object
+
+    resp = {"files": [{"id": "random1"}]}
+    l = MagicMock()
+    file_service.list.return_value = l
+    l.execute.return_value = resp
+
+    folder_id = g.create_folder("random2")
+
+    assert folder_id == "random1"
+    query = "name = 'random2' and mimeType = 'application/vnd.google-apps.folder'"
+    file_service.list.assert_called_once_with(q=query, pageSize=5)
+    l.execute.assert_called_once()
+    file_service.create.assert_not_called()
+
+
+def test_folder_preexisting_multiple(default_object):
+    g, file_service, _ = default_object
+
+    resp = {"files": [{"id": "random1"}, {"id": "random3"}]}
+    l = MagicMock()
+    file_service.list.return_value = l
+    l.execute.return_value = resp
+
+    folder_id = g.create_folder("random2")
+
+    assert folder_id == "random1"
+    query = "name = 'random2' and mimeType = 'application/vnd.google-apps.folder'"
+    file_service.list.assert_called_once_with(q=query, pageSize=5)
+    l.execute.assert_called_once()
+    file_service.create.assert_not_called()
+
+
+def test_folder_new(default_object):
+    g, file_service, _ = default_object
+
+    search_resp = {}
+    l = MagicMock()
+    file_service.list.return_value = l
+    l.execute.return_value = search_resp
+
+    create_resp = {"id": "something"}
+    c = MagicMock()
+    file_service.create.return_value = c
+    c.execute.return_value = create_resp
+
+    folder_id = g.create_folder("random2")
+
+    assert folder_id == "something"
+    query = "name = 'random2' and mimeType = 'application/vnd.google-apps.folder'"
+    file_service.list.assert_called_once_with(q=query, pageSize=5)
+    l.execute.assert_called_once()
+    file_service.create.assert_called()
+    c.execute.assert_called()
 
 
 def test_exists_yes(default_object):
