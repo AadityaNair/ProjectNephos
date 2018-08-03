@@ -6,7 +6,7 @@ MODULE_NAME = "ProjectNephos.handlers.tag"
 
 
 @patch(MODULE_NAME + ".SearchHandler")
-@patch(MODULE_NAME + ".DriveStorage")
+@patch(MODULE_NAME + ".DataStore")
 def test_default(ds, _):
     ds.return_value = "random_drive_store"
     sh = TagHandler("random_subcommand")

@@ -6,7 +6,7 @@ import pytest
 MODULE_NAME = "ProjectNephos.handlers.search"
 
 
-@patch(MODULE_NAME + ".DriveStorage")
+@patch(MODULE_NAME + ".DataStore")
 def test_default(ds):
     ds.return_value = "random_drive_store"
 
@@ -20,7 +20,7 @@ def test_default(ds):
 
 
 @pytest.fixture
-@patch(MODULE_NAME + ".DriveStorage")
+@patch(MODULE_NAME + ".DataStore")
 def default_object(ds):
     backend = MagicMock()
     ds.return_value = backend
