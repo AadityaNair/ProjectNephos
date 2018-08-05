@@ -112,6 +112,19 @@ Rest are optional arguments:
 
 Note that `--tag` is dependent providing the `--upload` option. If it not provided `--tag` is a NOOP.
 
+### TV Listings
+Nephos also has a crude API that supports TV listings.
+```bash
+nephos schedule add --name <program_name> --channel <channel> --start <starttime> --duration <length> --tags <tag1> <tag2>
+````
+This syntax is pretty much exactly the same as for the `job add` above. The `tags` are associated with the program.
+This allows for a separate syntax to add a job:
+```bash
+nephos job add --name <jobname> --program_tags <tag1> <tag2> .. \
+               --upload --convert_to <format> --tag <tag1> <tag2>
+```
+This will find all programs with **any** of the provided tags and add them as jobs.
+
 ### Initialise Server
 This starts the orchestration server which is responsible for the record -> process -> upload pipeline.
 This will also create all the relevant directories and perform OAuth with google drive, if not done already.
