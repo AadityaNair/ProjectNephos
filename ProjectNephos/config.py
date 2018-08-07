@@ -30,6 +30,12 @@ default_values = {
         "username": "anonymous",
         "password": "password",
     },
+    "mail": {
+        "host": "smtp.server.com",
+        "port": "25",
+        "admin": "admin@ccextractor.org",
+        "From": "nephos@ccextractor.org",
+    },
     "others": {"backends": "google ftp"},
 }
 
