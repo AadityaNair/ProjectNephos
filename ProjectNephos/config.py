@@ -18,7 +18,6 @@ default_values = {
         "temp_save_location": BASE_FOLDER + "/temp_files/",
     },
     "recording": {
-        "driver": "sqlite",
         "db_location": BASE_FOLDER + "/nephos.sqlite",
         "multicat": "~/multicat-2.1/multicat",
         "ccextractor": "~/aanair_nephos/ccextractor",
@@ -31,19 +30,7 @@ default_values = {
         "username": "anonymous",
         "password": "password",
     },
-    "web": {"host": "0.0.0.0", "port": "5000"},
-    "mail": {
-        "smtp_port": "465",
-        "host": "localhost",
-        "ssl": "True",
-        "tls": "False",
-        "username": "None",
-        "password": "None",
-        "subject": "Project Nephos",
-        "from": "projectnephos@localhost.local",
-        "to": "example@localhost.local",
-    },
-    "others": {"sentry_dsn": "", "backends": "google ftp"},
+    "others": {"backends": "google ftp"},
 }
 
 USER_CONFIG_LOC = BASE_FOLDER
