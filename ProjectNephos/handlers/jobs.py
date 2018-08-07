@@ -5,6 +5,8 @@ from ProjectNephos.backends import DBStorage
 from ProjectNephos.config import Configuration
 from ProjectNephos.handlers.base import BaseHandler
 
+from xmlrpc.client import ServerProxy
+
 logger = getLogger(__name__)
 
 
@@ -82,6 +84,8 @@ class JobHandler(BaseHandler):
 
     def run(self, args):
         if args.action == "add":
+            client = ServerProxy("http://localhost:8080")
+
             if not args.program_tags:
                 if not all([args.channel, args.name, args.start, args.duration]):
                     logger.critical(
@@ -110,6 +114,7 @@ class JobHandler(BaseHandler):
                     args.subtitles,
                     args.tags,
                 )
+                client.add_job(args.name)
             else:
                 if not args.name:
                     logger.critical("Job name is required.")
@@ -131,6 +136,7 @@ class JobHandler(BaseHandler):
                         args.subtitles,
                         args.tags,
                     )
+                    client.add_job(args.name + "->" + prog.program)
 
         if args.action == "list":
             for items in self.db.get_job():

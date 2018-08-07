@@ -2,15 +2,24 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ProcessPoolExecutor
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
-from apscheduler.schedulers.blocking import BlockingScheduler
 
 from ProjectNephos.orchestration.tasks import run_job
-from ProjectNephos.orchestration.recording import record_video
+
+# from ProjectNephos.orchestration.recording import record_video
 from ProjectNephos.backends import DBStorage
 
+from multiprocessing import Process
 from logging import getLogger
+from xmlrpc.server import SimpleXMLRPCServer
 
 logger = getLogger(__name__)
+scheduler = None  # The actual scheduler that is to be manipulated later
+configuration = None  # Configuration
+rpc_server = None
+
+
+def record_video(job, config):
+    logger.critical(job)
 
 
 class Server(object):
@@ -40,7 +49,7 @@ class Server(object):
         self.running_jobs = []
         logger.debug("Starting Orchestration.")
 
-        self.sched = BlockingScheduler(
+        self.sched = BackgroundScheduler(
             jobstore=MemoryJobStore(),
             executor=ProcessPoolExecutor(5),
             job_defaults={
@@ -48,6 +57,12 @@ class Server(object):
                 "max_instances": 9,  # Total number of concurrent instances for the same job.
             },
         )
+
+        self.rpc = SimpleXMLRPCServer(("localhost", 8080))
+
+    def setup_rpc_server(self):
+        self.rpc.register_function(add_job_rpc, "add_job")
+        self.rpc.register_function(close)
 
     def add_regular_jobs(self):
         for item in self.jobs:
@@ -98,10 +113,43 @@ class Server(object):
         )
 
         self.db.session.close()
+        self.sched.start()
 
-        try:
-            self.sched.start()
-        except KeyboardInterrupt:
-            logger.info("Interrupt received.")
-            self.sched.shutdown()
-            logger.debug("Orchestration shut down.")
+        global scheduler, configuration, rpc_server
+        scheduler = self.sched
+        configuration = self.config
+        rpc_server = self.rpc
+
+        self.setup_rpc_server()
+        self.rpc.serve_forever()
+
+
+def add_job_rpc(name):
+    global configuration
+    db = DBStorage(configuration)
+
+    job = db.get_job(jobname=name)
+
+    cron = job.start.split()
+    global scheduler
+    j = scheduler.add_job(
+        record_video,
+        args=[job, configuration],
+        trigger="cron",
+        minute=cron[0],
+        hour=cron[1],
+        day=cron[2],
+        month=cron[3],
+        day_of_week=cron[4],
+        year=cron[5],
+    )
+    logger.debug("Added recording job {}: {}".format(j.id, j.func))
+    db.session.close()
+    return True
+
+
+def close():
+    global scheduler, rpc_server
+    scheduler.shutdown()
+    rpc_server.server_close()
+    return True
