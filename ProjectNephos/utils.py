@@ -16,3 +16,4 @@ def send_mail(subject, body, config):
     server = SMTP(host, port)
 
     server.send_message(Message)
+    server.quit()
