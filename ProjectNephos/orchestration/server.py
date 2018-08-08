@@ -5,10 +5,9 @@ from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 
 from ProjectNephos.orchestration.tasks import run_job
 
-# from ProjectNephos.orchestration.recording import record_video
+from ProjectNephos.orchestration.recording import record_video
 from ProjectNephos.backends import DBStorage
 
-from multiprocessing import Process
 from logging import getLogger
 from xmlrpc.server import SimpleXMLRPCServer
 
@@ -16,10 +15,6 @@ logger = getLogger(__name__)
 scheduler = None  # The actual scheduler that is to be manipulated later
 configuration = None  # Configuration
 rpc_server = None
-
-
-def record_video(job, config):
-    logger.critical(job)
 
 
 class Server(object):
