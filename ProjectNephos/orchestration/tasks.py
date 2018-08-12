@@ -156,6 +156,7 @@ def run_job(_, config):
 def test_channel_up(_, config):
     db = DBStorage(config)
     li_of_ch = db.get_channels()
+    logger = getLogger(__name__)
 
     for channel in li_of_ch:
         base_path = config["downloads", "temp_save_location"]
