@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import logging.handlers
 from os.path import expanduser
 
 from ProjectNephos.config import Configuration, CONFIG_FULL_PATH_DEFAULT
@@ -53,12 +54,20 @@ def main():
 
     args = parser.parse_args()
 
-    logging.basicConfig(
-        filename=expanduser("~/aanair_nephos/.nephos/recording.log"),
-        level=logging.DEBUG,
-    )
+    log_file_path = expanduser("~/aanair_nephos/.nephos/recording.log")
 
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("ProjectNephos")
+    logger.setLevel(logging.DEBUG)
+    fh = logging.handlers.RotatingFileHandler(
+        log_file_path, maxBytes=25 * 1024 * 1024, backupCount=10
+    )
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    logging.getLogger(__name__)
     logger.debug("The following args were found {}".format(args))
 
     if args.subc is None:

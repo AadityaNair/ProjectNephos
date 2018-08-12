@@ -28,7 +28,6 @@ class ChannelHandler(BaseHandler):
         parser.add_argument("--name", action="store", help="Name of the channel")
         parser.add_argument("--ip", action="store", help="IP Address of the channel")
 
-
     def run(self, args):
         if args.action == "add":
             if not args.name:
