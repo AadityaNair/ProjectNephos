@@ -5,11 +5,17 @@ import logging
 from ProjectNephos.backends.DataBase import Job, DBStorage
 from ProjectNephos.config import Configuration
 
-# logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def record_video(job, config):
     db = DBStorage(config)
+    channel = db.get_channels(job.channel)
+
+    if not channel.is_up:
+        logger.critical("{} skipped due to channel being down".format(job))
+        return -1
+
     base_path = config["downloads", "local_save_location"]
     full_path = (
         base_path
@@ -47,7 +53,7 @@ def record_video(job, config):
     command = "{multicat} -u -d {duration} @{ip}{bind} {path}".format(
         multicat=multicat,
         duration=duration,
-        ip=channel[0][1],
+        ip=channel.ip_string,
         path=full_path,
         bind=bind_ip,
     )

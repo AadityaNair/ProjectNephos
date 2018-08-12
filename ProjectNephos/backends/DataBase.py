@@ -17,14 +17,12 @@ class Channel(Base):
     name = Column(String(1200), primary_key=True, nullable=False)
     ip_string = Column(String(128))
 
-    # meta_teletext_page = Column(String(128))
-    # meta_country_code = Column(String(16))
-    # meta_language_code = Column(String(16))
-    # meta_timezone = Column(String(128))
-    # meta_video_source = Column(String(1200))
+    is_up = Column(Boolean, default=True)
 
     def __repr__(self):
-        return "<Channel (Name: {}, IP: {})>".format(self.name, self.ip_string)
+        return "<Channel (Name: {}, IP: {}, UP: {})>".format(
+            self.name, self.ip_string, self.is_up
+        )
 
 
 class Job(Base):
@@ -195,10 +193,9 @@ class DBStorage(object):
 
     def get_channels(self, name=None):
         if name is None:
-            response = self.session.query(Channel).order_by(Channel.name)
+            return self.session.query(Channel).order_by(Channel.name).all()
         else:
-            response = self.session.query(Channel).filter(Channel.name == name)
-        return [(x.name, x.ip_string) for x in response]
+            return self.session.query(Channel).filter(Channel.name == name).first()
 
     def add_job(
         self, name, channel, start, duration, upload, convert_to, subtitles, tags

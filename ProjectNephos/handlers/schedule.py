@@ -51,7 +51,7 @@ class ScheduleHandler(BaseHandler):
                     )
                     return -1
 
-                if len(self.db.get_channels(name=args.channel)) == 0:
+                if self.db.get_channels(name=args.channel) is None:
                     logger.critical(
                         "Provided channel name does not exist. Please provide a correct one."
                     )
