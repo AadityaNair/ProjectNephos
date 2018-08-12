@@ -197,6 +197,16 @@ class DBStorage(object):
         else:
             return self.session.query(Channel).filter(Channel.name == name).first()
 
+    def set_channel_up(self, name):
+        channel = self.session.query(Channel).filter(Channel.name == name).first()
+        channel.is_up = True
+        self.session.commit()
+
+    def set_channel_down(self, name):
+        channel = self.session.query(Channel).filter(Channel.name == name).first()
+        channel.is_up = False
+        self.session.commit()
+
     def add_job(
         self, name, channel, start, duration, upload, convert_to, subtitles, tags
     ):

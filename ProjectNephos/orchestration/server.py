@@ -4,7 +4,7 @@ from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from ProjectNephos.orchestration.tasks import run_job
+from ProjectNephos.orchestration.tasks import run_job, test_channel_up
 from ProjectNephos.orchestration.recording import record_video
 from ProjectNephos.backends import DBStorage
 
@@ -50,14 +50,21 @@ class Server(object):
         )
 
     def add_regular_jobs(self):
-        for item in self.jobs:
-            j = self.sched.add_job(
-                item,
-                args=[self.sched, self.config],
-                trigger="interval",
-                seconds=self.REFRESH_TIMER,
-            )
-            logger.debug("Added regular job {}: {}".format(j.id, j.func))
+        j = self.sched.add_job(
+            run_job,
+            args=[self.sched, self.config],
+            trigger="interval",
+            seconds=self.REFRESH_TIMER,
+        )
+        logger.debug("Added regular job {}: {}".format(j.id, j.func))
+
+        j = self.sched.add_job(
+            test_channel_up,
+            args=[self.sched, self.config],
+            trigger="interval",
+            minutes=30,
+        )
+        logger.debug("Added regular job {}: {}".format(j.id, j.func))
 
     def add_recording_jobs(self):
         job_list = self.db.get_job()

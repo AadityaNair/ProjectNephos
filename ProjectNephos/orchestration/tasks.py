@@ -1,4 +1,6 @@
+import datetime
 import os
+import subprocess
 
 from ProjectNephos.backends import DBStorage
 from ProjectNephos.handlers.upload import UploadHandler
@@ -149,3 +151,73 @@ def run_job(_, config):
     delete_and_upload_log(config, download.filename, associated_job.channel)
 
     db.session.close()
+
+
+def test_channel_up(_, config):
+    db = DBStorage(config)
+    li_of_ch = db.get_channels()
+
+    for channel in li_of_ch:
+        base_path = config["downloads", "temp_save_location"]
+        logger.debug("Testing channel: {}".format(channel))
+        full_path = (
+            base_path
+            + "ChannelTest->"
+            + channel.name
+            + "--"
+            + str(datetime.datetime.now().strftime("%Y%m%d_%H:%M"))
+            + ".ts"
+        )
+
+        aux_file_path = (
+                base_path
+                + "ChannelTest->"
+                + channel.name
+                + "--"
+                + str(datetime.datetime.now().strftime("%Y%m%d_%H:%M"))
+                + ".aux"
+        )
+
+        duration = 30 * 27000000  # 30 Seconds
+        multicat = config["recording", "multicat"]
+        bind_ip = config["recording", "bind"]
+
+        if bind_ip:
+            bind_ip = "/ifaddr=" + bind_ip
+
+        command = "{multicat} -u -d {duration} @{ip}{bind} {path}".format(
+            multicat=multicat,
+            duration=duration,
+            ip=channel.ip_string,
+            path=full_path,
+            bind=bind_ip,
+        )
+
+        try:
+            stdout = subprocess.check_output(command.split(), stderr=subprocess.STDOUT)
+
+        except FileNotFoundError:
+            logger.critical(
+                "multicat does not exist at the provided path {}".format(multicat)
+            )
+            return -1
+        except subprocess.CalledProcessError:
+            logger.critical("Some error has occured during recording test {}".format(channel.name))
+            logger.critical("Dumping output:\n{}".format(stdout))
+            return -1
+
+        logger.debug("Recording for {} saved.".format(channel.name))
+        size = os.path.getsize(full_path)
+        if size < 1024:
+            logger.debug("Channel: {} seems down.".format(channel.name))
+            db.set_channel_down(channel.name)
+        else:
+            logger.debug("Channel: {} is up.".format(channel.name))
+            db.set_channel_up(channel.name)
+
+        logger.debug("Deleting the files created.")
+        os.remove(full_path)
+        os.remove(aux_file_path)
+
+    db.session.close()
+    return 0
