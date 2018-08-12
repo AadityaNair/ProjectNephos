@@ -10,7 +10,7 @@ from ProjectNephos.handlers.permissions import PermissionHandler
 
 from logging import getLogger
 
-logger = getLogger("job_log")
+logger = getLogger("ProjectNephos.job_log")
 
 
 def process_job(convert_to, filename, config):

@@ -33,7 +33,7 @@ def record_video(job, config):
         + ".log"
     )
 
-    logger = logging.getLogger("job_log")
+    logger = logging.getLogger("ProjectNephos.job_log")
     logger.setLevel(logging.DEBUG)
     fh = logging.FileHandler(log_file_path)
     formatter = logging.Formatter(
