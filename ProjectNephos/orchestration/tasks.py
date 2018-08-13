@@ -153,7 +153,7 @@ def run_job(_, config):
     db.session.close()
 
 
-def test_channel_up(_, config):
+def check_channel_up(_, config):
     db = DBStorage(config)
     li_of_ch = db.get_channels()
     logger = getLogger(__name__)

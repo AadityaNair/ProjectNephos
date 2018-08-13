@@ -4,7 +4,7 @@ from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from ProjectNephos.orchestration.tasks import run_job, test_channel_up
+from ProjectNephos.orchestration.tasks import run_job, check_channel_up
 from ProjectNephos.orchestration.recording import record_video
 from ProjectNephos.backends import DBStorage
 
@@ -59,7 +59,7 @@ class Server(object):
         logger.debug("Added regular job {}: {}".format(j.id, j.func))
 
         j = self.sched.add_job(
-            test_channel_up,
+            check_channel_up,
             args=[self.sched, self.config],
             trigger="interval",
             minutes=30,
