@@ -26,14 +26,6 @@ def default_object(*_):
     return obj, obj.sched
 
 
-def test_regular_job(default_object):
-    s, sch = default_object
-    s.jobs = [1, 2, 3, 4]
-
-    s.add_regular_jobs()
-    assert sch.add_job.call_count == len(s.jobs)
-
-
 def test_recording_job(default_object):
     s, sch = default_object
     rec_list = [MagicMock()] * 5
