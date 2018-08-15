@@ -254,7 +254,7 @@ class DBStorage(object):
         self.session.add(entry)
         self.session.commit()
 
-    def add_schdeule(self, program, channel, start, duration, tags):
+    def add_schedule(self, program, channel, start, duration, tags):
         entry = Schedule(
             program=program,
             channel=channel,
