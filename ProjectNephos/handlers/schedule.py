@@ -43,24 +43,24 @@ class ScheduleHandler(BaseHandler):
             help="Tags that should be associated with the program.",
         )
 
-        def run(self, args):
-            if args.action == "add":
-                if not all([args.channel, args.name, args.start, args.duration]):
-                    logger.critical(
-                        "All of the following options are required: --channel, --name, --start, --duration"
-                    )
-                    return -1
-
-                if self.db.get_channels(name=args.channel) is None:
-                    logger.critical(
-                        "Provided channel name does not exist. Please provide a correct one."
-                    )
-                    return -1
-
-                self.db.add_schedule(
-                    args.name, args.channel, args.start, args.duration, args.tags
+    def run(self, args):
+        if args.action == "add":
+            if not all([args.channel, args.name, args.start, args.duration]):
+                logger.critical(
+                    "All of the following options are required: --channel, --name, --start, --duration"
                 )
+                return -1
 
-            if args.action == "list":
-                for items in self.db.get_schedule_items():
-                    print(items)
+            if self.db.get_channels(name=args.channel) is None:
+                logger.critical(
+                    "Provided channel name does not exist. Please provide a correct one."
+                )
+                return -1
+
+            self.db.add_schedule(
+                args.name, args.channel, args.start, args.duration, args.tags
+            )
+
+        if args.action == "list":
+            for items in self.db.get_schedule_items():
+                print(items)
